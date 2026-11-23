@@ -4,7 +4,7 @@ An AI-powered career platform for students looking for internships: profile and 
 
 Runs entirely on **localhost**: React + Vite frontend, FastAPI backend, and Supabase PostgreSQL (+ pgvector) as the database. No local PostgreSQL install is needed.
 
-> Status: **Phase 3 complete**: authentication, student profile, resume parsing and skill review, plus the internship knowledge base (sample postings, paste-a-JD, semantic search). See [`docs/01_DESIGN_BLUEPRINT.md`](docs/01_DESIGN_BLUEPRINT.md) for the full plan.
+> Status: **Phase 4 complete**: authentication, student profile, resume parsing and skill review, the internship knowledge base (sample postings, paste-a-JD, semantic search), and the Product Assistant (RAG chat with memory, sessions and citations). See [`docs/01_DESIGN_BLUEPRINT.md`](docs/01_DESIGN_BLUEPRINT.md) for the full plan.
 
 ## How resume parsing works
 
@@ -19,6 +19,18 @@ Runs entirely on **localhost**: React + Vite frontend, FastAPI backend, and Supa
 1. **Sample data**: 20 postings from *fictional* companies, stored with `source='sample'` and shown with a "Sample" badge. Seed them once with `python -m app.seed` (idempotent).
 2. **Add from a job description**: paste the text; Gemini extracts the fields and required/preferred skills, a grounding check drops anything not in the pasted text, and you review and edit the draft before anything is saved. Postings you add are private to you.
 3. **Semantic search**: each posting is chunked and embedded locally with `fastembed` (`BAAI/bge-small-en-v1.5`, 384-dim; the ~130 MB model downloads on first use) into pgvector, searched by cosine similarity (HNSW index). Keyword filters (work mode, location, skill, source) combine with it.
+
+## How the Product Assistant works
+
+The Product Assistant answers questions about this product from one source, [`docs/02_PRODUCT_KNOWLEDGE_DOCUMENT.md`](docs/02_PRODUCT_KNOWLEDGE_DOCUMENT.md). It is a LangGraph pipeline:
+
+1. **load history**: fetch this session's messages by `(user_id, session_id, assistant_type)`; other users' and other sessions' chats are never visible.
+2. **condense**: rewrite a follow-up like "why did we use it?" into a standalone question using the history.
+3. **retrieve**: embed the question and fetch the top 5 document sections from pgvector (cosine). If none is similar enough, the assistant says it is not in the documentation, without calling the model.
+4. **generate**: Gemini answers using only those sections and marks the ones it used as `[n]`.
+5. **persist**: store the question, answer and citations; long chats are summarised so older context is kept.
+
+Each answer lists its sources and can be rated 👍/👎. Chats are listed per user and can be deleted. Run `python -m app.seed` after editing the document to re-index it.
 
 ## Prerequisites
 

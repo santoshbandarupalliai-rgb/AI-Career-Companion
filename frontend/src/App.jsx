@@ -8,6 +8,7 @@ import ComingSoonPage from "./pages/ComingSoonPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import ResumePage from "./pages/ResumePage.jsx";
 import InternshipsPage from "./pages/InternshipsPage.jsx";
+import ProductAssistantPage from "./pages/ProductAssistantPage.jsx";
 import { MODULES } from "./modules.js";
 
 // Modules that are built; the rest show a "coming in phase N" page.
@@ -15,6 +16,7 @@ const PAGES = {
   "/profile": ProfilePage,
   "/resume": ResumePage,
   "/internships": InternshipsPage,
+  "/product-assistant": ProductAssistantPage,
 };
 
 function RequireAuth({ children }) {

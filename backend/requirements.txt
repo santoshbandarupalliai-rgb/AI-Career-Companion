@@ -27,3 +27,6 @@ google-genai==3.6.1
 
 # Embeddings (Phase 3)
 fastembed==0.9.1
+
+# Assistant workflows (Phase 4)
+langgraph==1.2.24

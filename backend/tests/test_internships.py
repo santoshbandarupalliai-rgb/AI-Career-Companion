@@ -265,9 +265,7 @@ def test_extract_rejects_tiny_input(client, auth):
 
 @pytest.mark.integration
 def test_real_embedding_model_shape_and_similarity(monkeypatch):
-    from importlib import reload
-
-    reload(embeddings)  # undo the autouse fake
+    monkeypatch.undo()  # drop the autouse fake embeddings; use the real model
     a, b, c = embeddings.embed_documents(
         ["Python backend developer building REST APIs", "Server-side engineer writing Python web services", "Pastry chef baking sourdough bread"]
     )
@@ -280,11 +278,9 @@ def test_real_embedding_model_shape_and_similarity(monkeypatch):
 
 
 @pytest.mark.integration
-def test_pgvector_search_on_real_database():
+def test_pgvector_search_on_real_database(monkeypatch):
     """Guards the Postgres-only `<=>` path, which SQLite unit tests cannot exercise."""
-    from importlib import reload
-
-    reload(embeddings)
+    monkeypatch.undo()
     from app.db import SessionLocal
     from app.rag import retriever
 
