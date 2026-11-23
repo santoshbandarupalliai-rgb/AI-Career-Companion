@@ -4,7 +4,7 @@ An AI-powered career platform for students looking for internships: profile and 
 
 Runs entirely on **localhost**: React + Vite frontend, FastAPI backend, and Supabase PostgreSQL (+ pgvector) as the database. No local PostgreSQL install is needed.
 
-> Status: **Phases 1-9 complete** (first version). All nine modules plus a status dashboard are built. Authentication, student profile, resume parsing and skill review, the internship knowledge base (sample postings, paste-a-JD, semantic search), explainable job matching and skill-gap analysis, tailored resumes and cover letters with a fact guard, interview practice, the application tracker, the Career Assistant (tool-using agent), and the Product Assistant (RAG chat with memory, sessions and citations). See [`docs/01_DESIGN_BLUEPRINT.md`](docs/01_DESIGN_BLUEPRINT.md) for the full plan.
+> **Status: complete and tested.** All nine modules, the status dashboard and both assistants are built and working: authentication, student profile, resume parsing and skill review, the internship knowledge base (sample postings, paste-a-JD, semantic search), explainable job matching and skill-gap analysis, tailored resumes and cover letters with a fact guard, interview practice, the application tracker, the Career Assistant (tool-using agent) and the Product Assistant (RAG chat with memory, sessions and citations). See [`docs/01_DESIGN_BLUEPRINT.md`](docs/01_DESIGN_BLUEPRINT.md) for the design and build plan.
 
 ## Documentation
 
@@ -14,6 +14,7 @@ Runs entirely on **localhost**: React + Vite frontend, FastAPI backend, and Supa
 | [`docs/02_PRODUCT_KNOWLEDGE_DOCUMENT.md`](docs/02_PRODUCT_KNOWLEDGE_DOCUMENT.md) | Product Knowledge Document (the Product Assistant's only source). Exports: [`docs/exports/`](docs/exports/) (.docx and .pdf) |
 | [`docs/03_DEMO_SCRIPT.md`](docs/03_DEMO_SCRIPT.md) | Step-by-step demo through every module and both assistants |
 | [`docs/04_DIAGRAMS.md`](docs/04_DIAGRAMS.md) | Mermaid diagrams: architecture, RAG pipeline, both assistant graphs, database schema |
+| [`docs/05_AGILE_PLAN.md`](docs/05_AGILE_PLAN.md) | Agile plan: product vision, milestones, epics and user stories, backlog status and retrospective |
 
 ## Dashboard
 
