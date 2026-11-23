@@ -299,7 +299,7 @@ export default function CustomizePage() {
       <section className="card stack">
         <h2>Saved documents</h2>
         {docs === null ? (
-          <p className="muted small">Loading…</p>
+          <p className="muted small">{error ? "Saved documents are unavailable right now." : "Loading…"}</p>
         ) : docs.length === 0 ? (
           <p className="muted small">Nothing saved yet.</p>
         ) : (

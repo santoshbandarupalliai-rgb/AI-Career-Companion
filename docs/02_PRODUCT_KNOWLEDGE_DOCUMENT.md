@@ -161,6 +161,16 @@ The current release includes: sign-up and sign-in, the student profile, resume u
 
 **Output:** Answers grounded in the student's own data, tool traces, and confirmable tracker changes.
 
+### 2.14 Dashboard (Available)
+
+**Purpose:** Show the student where they stand and what to do next.
+
+**How it works:** The dashboard reads the student's own data and shows four status cards: how many of six key profile fields are filled (college, degree, branch, graduation year, CGPA, target role), whether a resume is active, how many skills are verified and how many are waiting for review, and how many applications are tracked in each status. It lists up to five upcoming deadlines for applications that are still open. A "Next step" box suggests one action, the first one that is not yet done: upload a resume, review or add skills, complete the profile, view matches, follow up on a deadline, or practise interviews. The dashboard only reads data; it uses no AI and changes nothing. Only verified skills count towards matching, so the skills card makes that visible. The module list below the cards works as navigation.
+
+**How to use:** Open "Dashboard" after signing in. Choose a card to go to the matching page, or choose the button in the "Next step" box.
+
+**Output:** A status overview, upcoming deadlines and a suggested next step.
+
 ## 3. How to Use
 
 ### 3.1 Getting started step by step

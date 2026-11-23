@@ -256,3 +256,11 @@ ol.history { margin: 0.3rem 0 0; padding-left: 1.1rem; display: flex; flex-direc
 .proposal.state-done { border-color: var(--ok-text); }
 .proposal.state-failed { border-color: var(--danger-text); }
 .proposal.state-cancelled { border-color: var(--border); color: var(--muted); }
+
+/* dashboard status */
+.status-grid { margin-top: 0; }
+.status-card { text-decoration: none; color: var(--text); }
+.status-card:hover { border-color: var(--primary); }
+.status-num { font-size: 1.4rem; font-weight: 700; }
+.next-step { border-left: 4px solid var(--primary); }
+.plain-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }

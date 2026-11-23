@@ -107,6 +107,11 @@ export function errorMessage(error, fallback = "Something went wrong. Please try
   if (data?.errors?.length) {
     return data.errors.map((e) => (e.field ? `${e.field}: ${e.message}` : e.message)).join(" · ");
   }
-  if (typeof data?.detail === "string") return data.detail;
+  if (typeof data?.detail === "string") {
+    // A server error carries a request id; show it so the problem can be traced in the logs.
+    return error.response.status >= 500 && data.request_id ? `${data.detail} (reference ${data.request_id})` : data.detail;
+  }
+  // 5xx with no JSON body: the dev proxy or a gateway answered because the backend is not running.
+  if (error.response.status >= 500) return "Cannot reach the server. Is the backend running on port 8000?";
   return fallback;
 }
