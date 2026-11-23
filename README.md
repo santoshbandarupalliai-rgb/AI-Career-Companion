@@ -4,7 +4,7 @@ An AI-powered career platform for students looking for internships: profile and 
 
 Runs entirely on **localhost**: React + Vite frontend, FastAPI backend, and Supabase PostgreSQL (+ pgvector) as the database. No local PostgreSQL install is needed.
 
-> Status: **Phase 4 complete**: authentication, student profile, resume parsing and skill review, the internship knowledge base (sample postings, paste-a-JD, semantic search), and the Product Assistant (RAG chat with memory, sessions and citations). See [`docs/01_DESIGN_BLUEPRINT.md`](docs/01_DESIGN_BLUEPRINT.md) for the full plan.
+> Status: **Phase 5 complete**: authentication, student profile, resume parsing and skill review, the internship knowledge base (sample postings, paste-a-JD, semantic search), explainable job matching and skill-gap analysis, and the Product Assistant (RAG chat with memory, sessions and citations). See [`docs/01_DESIGN_BLUEPRINT.md`](docs/01_DESIGN_BLUEPRINT.md) for the full plan.
 
 ## How resume parsing works
 
@@ -19,6 +19,18 @@ Runs entirely on **localhost**: React + Vite frontend, FastAPI backend, and Supa
 1. **Sample data**: 20 postings from *fictional* companies, stored with `source='sample'` and shown with a "Sample" badge. Seed them once with `python -m app.seed` (idempotent).
 2. **Add from a job description**: paste the text; Gemini extracts the fields and required/preferred skills, a grounding check drops anything not in the pasted text, and you review and edit the draft before anything is saved. Postings you add are private to you.
 3. **Semantic search**: each posting is chunked and embedded locally with `fastembed` (`BAAI/bge-small-en-v1.5`, 384-dim; the ~130 MB model downloads on first use) into pgvector, searched by cosine similarity (HNSW index). Keyword filters (work mode, location, skill, source) combine with it.
+
+## How matching and skill gap work
+
+Scores are **deterministic**: fixed rules over your *verified* skills, so the same profile always gives the same number, and every point is explained.
+
+`score = 50% required skills + 15% preferred skills + 20% profile-to-posting similarity + 10% education fit + 5% experience fit`
+
+- Only verified skills count; unverified resume skills are shown as a hint.
+- If a posting or your profile does not give enough information for a factor, that factor is marked *not applicable* and its weight is shared across the others. Nothing is guessed.
+- Graduation-year and minimum-CGPA requirements are shown as met / not met / unknown when the posting states them, but do not change the score.
+- **Skill gap** ranks missing skills (critical = required, secondary = preferred) by how many postings ask for them, for one internship or a target role.
+- The AI is used only for the optional "Explain in words" and "Create learning plan" buttons, on top of numbers it cannot change.
 
 ## How the Product Assistant works
 

@@ -6,7 +6,7 @@ This document describes the AI Career Companion product. It is the only source t
 
 ### 1.1 What the product is
 
-AI Career Companion is a web application that helps students find and apply for internships. A student builds a profile, uploads a resume, confirms the skills found in it, browses an internship knowledge base, and (in later releases) gets explainable match scores, skill-gap plans, tailored resumes and cover letters, interview practice, an application tracker and a chat-based Career Assistant.
+AI Career Companion is a web application that helps students find and apply for internships. A student builds a profile, uploads a resume, confirms the skills found in it, browses an internship knowledge base, gets explainable match scores and skill-gap analysis, and (in later releases) gets tailored resumes and cover letters, interview practice, an application tracker and a chat-based Career Assistant.
 
 ### 1.2 Who it is for
 
@@ -15,14 +15,14 @@ It is built for students and recent graduates looking for internships, especiall
 ### 1.3 Guiding principles
 
 - **Nothing is invented.** A new profile starts empty. The product never makes up qualifications, internships, skills or eligibility.
-- **Extracted is not verified.** Skills read from a resume are "extracted" until the student confirms them. Only "verified" skills will count in matching and skill-gap analysis.
+- **Extracted is not verified.** Skills read from a resume are "extracted" until the student confirms them. Only "verified" skills count in matching and skill-gap analysis.
 - **AI output is checked.** After the AI reads a document, a deterministic check removes anything that does not actually appear in the source text.
 - **Sample data is labelled.** Demo internships come from fictional companies and carry a "Sample" badge.
 - **Two separate assistants.** The Product Assistant (answers questions about the product from this document) and the Career Assistant (planned; helps with the student's own career using their profile) are different features with different data access.
 
 ### 1.4 Current release
 
-The current release includes: sign-up and sign-in, the student profile, resume upload and parsing, skill review, the internship knowledge base with semantic search, and the Product Assistant. Matching, skill gap, resume and cover-letter tailoring, interview preparation, the application tracker and the Career Assistant are planned and show a "coming soon" page.
+The current release includes: sign-up and sign-in, the student profile, resume upload and parsing, skill review, the internship knowledge base with semantic search, job matching, skill gap analysis, and the Product Assistant. Resume and cover-letter tailoring, interview preparation, the application tracker and the Career Assistant are planned and show a "coming soon" page.
 
 ## 2. Features
 
@@ -101,25 +101,25 @@ The current release includes: sign-up and sign-in, the student profile, resume u
 
 **Output:** An answer with citations to document sections, stored in the chat history.
 
-### 2.8 Job matching (Planned)
+### 2.8 Job matching (Available)
 
-**Purpose:** Show how well the student fits each internship, and why.
+**Purpose:** Show how well each internship fits the student, and exactly why.
 
-**How it works:** A deterministic scoring function (not the AI) compares the student's verified skills with each internship's required and preferred skills and also considers eligibility such as education. The score comes with a factor-by-factor breakdown listing matched and missing skills. The AI only writes the explanation, and if it fails the score and table are still shown.
+**How it works:** The score from 0 to 100 is calculated by fixed rules, never by the AI, so the same profile always gives the same score. It combines five factors: required skills (50%), preferred skills (15%), overall relevance of the student's profile text to the posting (20%), education fit (10%) and experience fit (5%). Skill factors are the share of the posting's required or preferred skills that are in the student's verified skills. Relevance is the similarity between a short text built from the student's target role, degree, branch and verified skills and the posting's text. Education fit compares the posting's stated requirement with the degree and branch in the profile. Experience fit checks, only when the posting asks for hands-on work, whether the active resume lists any projects or experience. Only verified skills count. Skills found in the resume but not yet verified are not scored, but the page lists them as a hint to verify. If a posting or profile does not give enough information for a factor, that factor is marked not applicable and its weight is shared among the others, and the page says so. Until the student verifies at least one skill, every score is 0. Eligibility details that a posting states, such as graduation years or a minimum CGPA, are shown as met, not met or unknown, but they are not part of the score. An optional "Explain in words" button asks the AI to describe the result in plain language using only the calculated facts; if the AI is unavailable, the score and breakdown are still shown.
 
-**How to use:** Not yet available. It will be opened from "Job Matching".
+**How to use:** Verify your skills first on "Resume Parsing", then open "Job Matching". Postings are listed from best to worst. Choose "Why this score?" to see the factor table, the matched and missing skills and the eligibility checks.
 
-**Output:** A score, a breakdown and a short explanation per internship.
+**Output:** A ranked list of internships with a score, a factor-by-factor breakdown with points, matched and missing skills, eligibility checks, and an optional AI explanation.
 
-### 2.9 Skill gap analysis (Planned)
+### 2.9 Skill gap analysis (Available)
 
-**Purpose:** Show which skills are missing for a target internship or role and in what order to learn them.
+**Purpose:** Show which skills the student is missing for a target and in what order to learn them.
 
-**How it works:** The gap is computed by comparing verified skills with the target's required and preferred skills, ranked by importance. The AI then suggests a learning plan. No made-up courses or links are produced.
+**How it works:** The student picks either one specific internship or a target role. For a role, the product compares against the five closest postings in the knowledge base. The gap is computed by comparing verified skills with the posting skills, without AI. Missing skills are split into critical gaps (required by a posting) and secondary gaps (only preferred), and ranked by how many of the considered postings ask for them. A coverage percentage shows how much of the target's skill demand the verified skills cover, with preferred-only skills counting half. A missing skill that appears in the resume but is not verified is flagged so the student can verify it. An optional "Create learning plan" button asks the AI for one step per missing skill, with why it matters, what to study and a small practice project. The plan contains no links or course names, steps for skills that were not in the gap are discarded, and if the AI is unavailable the gap is still shown.
 
-**How to use:** Not yet available. It will be opened from "Skill Gap".
+**How to use:** Open "Skill Gap", choose "A target role" and type a role, or choose "A specific internship". You can also open it from the "See skill gap" link in a match breakdown.
 
-**Output:** A ranked list of missing skills and a learning plan.
+**Output:** Acquired skills, critical gaps, secondary gaps, a coverage percentage, and an optional learning plan.
 
 ### 2.10 Resume and cover-letter tailoring (Planned)
 
@@ -172,7 +172,9 @@ The current release includes: sign-up and sign-in, the student profile, resume u
 5. In the Skills panel, verify the skills that are true, reject the wrong ones, and add any that are missing.
 6. Open "Internship Knowledge Base" and search or filter for internships.
 7. Optionally add a posting by pasting its job description, reviewing the draft, and saving.
-8. Open "Product Assistant" any time to ask how something works.
+8. Open "Job Matching" to see how well each internship fits you and why.
+9. Open "Skill Gap" to see which skills to learn next for a role or an internship.
+10. Open "Product Assistant" any time to ask how something works.
 
 ### 3.2 Asking the Product Assistant
 
@@ -187,6 +189,10 @@ The current release includes: sign-up and sign-in, the student profile, resume u
 **Why was a skill I did not list removed?** The grounding check removes any skill that does not appear in your resume text, to avoid invented skills.
 
 **Why does the product not count extracted skills?** Only skills you confirm are treated as yours, so matching and gap analysis are based on what you stand behind.
+
+**Why is every match score 0?** Scores are only calculated once you have at least one verified skill. Verify your skills on the Resume Parsing page.
+
+**Why did a skill from my resume not raise my score?** Only verified skills count. Unverified resume skills are listed as a hint on the match page.
 
 **Are the sample internships real?** No. They come from fictional companies and are labelled "Sample". There is nothing to apply to.
 
@@ -205,8 +211,8 @@ Browser (React + Vite, localhost:5173)
    |  JSON over HTTP, /api/* proxied
    v
 FastAPI backend (localhost:8000)
-   |-- routers: auth, profile, resumes, skills, internships, chat/product
-   |-- services: parsing, skills, internships, assistants
+   |-- routers: auth, profile, resumes, skills, internships, matching, skill-gap, chat/product
+   |-- services: parsing, skills, internships, match engine (pure rules), assistants
    |-- app/llm/client.py  --------> Google Gemini (structured JSON + text)
    |-- app/rag/*  (local fastembed model: embeddings, chunker, retriever)
    v
@@ -215,7 +221,7 @@ Supabase PostgreSQL + pgvector (session pooler)
 
 ### 4.2 Backend layers
 
-Routers handle HTTP and validation. Services hold the logic. All AI calls go through one adapter module, so the provider can be swapped in one place. The retrieval code (chunker, embeddings, retriever) is shared by the internship search and the Product Assistant, using different corpora (`internship` and `product`).
+Routers handle HTTP and validation. Services hold the logic. The match and skill-gap calculations are pure functions with no database or AI access, which makes them deterministic and easy to test; the AI is used only for the optional explanation and learning plan. All AI calls go through one adapter module, so the provider can be swapped in one place. The retrieval code (chunker, embeddings, retriever) is shared by the internship search and the Product Assistant, using different corpora (`internship` and `product`).
 
 ### 4.3 RAG pipeline
 
@@ -263,4 +269,4 @@ They would add a second store to run and keep in sync. pgvector gives the same c
 
 ### 5.3 Known limitations
 
-Search relevance scores are similarities between 0 and 1, not probabilities. The assistant answers only from this document, so it cannot answer questions about things the document does not cover. Planned features are not available yet. Scanned (image-only) resumes are not supported because there is no OCR.
+Search relevance scores are similarities between 0 and 1, not probabilities. A match score is a guide to fit, not a prediction of whether an employer will select the student. The assistant answers only from this document, so it cannot answer questions about things the document does not cover. Planned features are not available yet. Scanned (image-only) resumes are not supported because there is no OCR.

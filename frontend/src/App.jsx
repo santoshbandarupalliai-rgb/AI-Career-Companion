@@ -9,6 +9,8 @@ import ProfilePage from "./pages/ProfilePage.jsx";
 import ResumePage from "./pages/ResumePage.jsx";
 import InternshipsPage from "./pages/InternshipsPage.jsx";
 import ProductAssistantPage from "./pages/ProductAssistantPage.jsx";
+import MatchingPage from "./pages/MatchingPage.jsx";
+import SkillGapPage from "./pages/SkillGapPage.jsx";
 import { MODULES } from "./modules.js";
 
 // Modules that are built; the rest show a "coming in phase N" page.
@@ -17,6 +19,8 @@ const PAGES = {
   "/resume": ResumePage,
   "/internships": InternshipsPage,
   "/product-assistant": ProductAssistantPage,
+  "/matching": MatchingPage,
+  "/skill-gap": SkillGapPage,
 };
 
 function RequireAuth({ children }) {

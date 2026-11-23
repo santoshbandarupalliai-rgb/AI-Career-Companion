@@ -214,3 +214,26 @@ label.inline input { width: auto; }
 .chat-input { display: flex; gap: 0.5rem; align-items: flex-end; }
 .chat-input textarea { flex: 1; resize: vertical; }
 @media (max-width: 720px) { .chat-layout { grid-template-columns: 1fr; } .msg { max-width: 95%; } }
+
+/* ---------- Phase 5: matching and skill gap ---------- */
+:root { --lack-bg: #fdecec; --lack-text: #a12828; --have-bg: #e8f7ee; --have-text: #17663a; }
+@media (prefers-color-scheme: dark) { :root { --lack-bg: #3a1d1f; --lack-text: #ffb4b4; --have-bg: #173225; --have-text: #8fe0b0; } }
+.score { min-width: 3.2rem; height: 3.2rem; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 1.15rem; border: 3px solid var(--primary); color: var(--primary); padding: 0 0.3rem; flex-shrink: 0; }
+.match-list { display: grid; gap: 1rem; }
+.match-card h2 { font-size: 1.05rem; }
+.chip.have { background: var(--have-bg); color: var(--have-text); }
+.chip.lack { background: var(--lack-bg); color: var(--lack-text); }
+.factor-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.factor-table th, .factor-table td { text-align: left; padding: 0.45rem 0.5rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+.factor-table th:nth-child(n+2), .factor-table td:nth-child(n+2) { white-space: nowrap; text-align: right; }
+.factor-table tr.na { color: var(--muted); }
+.notice-inline { margin: 0; padding: 0.5rem 0.7rem; border-radius: 8px; background: var(--nav-active); }
+.narrative { margin: 0; padding: 0.7rem 0.9rem; border-radius: 8px; background: var(--chip); white-space: pre-wrap; }
+.badge.elig-met { background: var(--ok-bg); color: var(--ok-text); }
+.badge.elig-not_met { background: var(--danger-bg); color: var(--danger-text); }
+.badge.elig-unknown { background: var(--chip); color: var(--muted); }
+ul.plain { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.gap-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; align-items: start; }
+.gap-item .hint { color: var(--warn); }
+ol.plan { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+ol.plan p { margin: 0; }
