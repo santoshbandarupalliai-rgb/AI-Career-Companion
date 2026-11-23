@@ -28,6 +28,11 @@ export default function LoginPage() {
 
   return (
     <div className="auth-page">
+      <div className="auth-hero" aria-hidden="true">
+        <div className="brand"><span className="brand-mark">CC</span><span>Career Companion</span></div>
+        <h2>From resume to offer, with nothing made up.</h2>
+        <p>Parse your resume, verify your skills, find explainable internship matches, tailor honest applications and track every step.</p>
+      </div>
       <form className="card auth-card" onSubmit={onSubmit} noValidate>
         <h1>Sign in</h1>
         <p className="muted">Welcome back to Career Companion.</p>

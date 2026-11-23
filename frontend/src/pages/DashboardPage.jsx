@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { api, errorMessage } from "../api/client.js";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { MODULES } from "../modules.js";
+import Icon from "../components/Icon.jsx";
 
 const STATUS_LABEL = {
   saved: "Saved", applied: "Applied", oa: "Online assessment", interview: "Interview",
@@ -73,8 +74,8 @@ export default function DashboardPage() {
 
   return (
     <div className="stack-lg">
-      <div>
-        <h1>Hi, {firstName}</h1>
+      <div className="page-head">
+        <h1>Hi, {firstName} 👋</h1>
         <p className="muted">Your progress at a glance. Every module builds on your profile, resume and verified skills.</p>
       </div>
 
@@ -117,10 +118,8 @@ export default function DashboardPage() {
         <div className="grid">
           {MODULES.map((m) => (
             <Link key={m.path} to={m.path} className="card module-card">
-              <div className="module-title">
-                {m.num ? `${m.num}. ` : ""}
-                {m.label}
-              </div>
+              <span className="module-icon"><Icon name={m.path} size={20} /></span>
+              <div className="module-title">{m.label}</div>
               <div className="muted small">{m.desc}</div>
             </Link>
           ))}
