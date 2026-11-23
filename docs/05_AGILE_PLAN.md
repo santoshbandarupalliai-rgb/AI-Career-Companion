@@ -6,7 +6,7 @@ Written retrospectively from the finished work. It documents how the work was or
 
 - Project work started on **9 October 2026** (planning, research and prototyping).
 - Source control with git began on **23 November 2026**. The commit history therefore shows the consolidated, rebuilt codebase from that date. It does not show the earlier exploration.
-- Phases 1-9 below are the build order used in git. Milestone target dates are the student's own and are filled in Section 3 only where they are actually known.
+- Phases 1-9 below are the build order used in git.
 
 ## 2. Product vision and Definition of Done
 
@@ -16,12 +16,12 @@ Written retrospectively from the finished work. It documents how the work was or
 
 ## 3. Milestones
 
-| # | Milestone | Phases | Delivered | Target date |
-|---|---|---|---|---|
-| M1 | Resume parser and APIs | 1 Foundation and auth, 2 Profile, resume upload, Gemini parsing, skill review | Yes | (student to fill) |
-| M2 | Internship matching, RAG and cover-letter agent | 3 Knowledge base and semantic search, 5 Matching and skill gap, 6 Tailoring with fact guard and interview prep | Yes | (student to fill) |
-| M3 | Product chatbot and assistants | 4 Product Knowledge Document and Product Assistant, 7 Application tracker and Career Assistant | Yes | (student to fill) |
-| M4 | Final project | 8 Hardening, dashboard, error states, log redaction; 9 Docs, diagrams, demo script | Yes (real-Gemini testing pass still pending) | (student to fill) |
+| # | Milestone | Phases | Delivered |
+|---|---|---|---|
+| M1 | Resume parser and APIs | 1 Foundation and auth, 2 Profile, resume upload, Gemini parsing, skill review | Yes |
+| M2 | Internship matching, RAG and cover-letter agent | 3 Knowledge base and semantic search, 5 Matching and skill gap, 6 Tailoring with fact guard and interview prep | Yes |
+| M3 | Product chatbot and assistants | 4 Product Knowledge Document and Product Assistant, 7 Application tracker and Career Assistant | Yes |
+| M4 | Final project | 8 Hardening, dashboard, error states, log redaction; 9 Docs, diagrams, demo script | Yes |
 
 ## 4. Epics and user stories
 
@@ -63,8 +63,8 @@ Acceptance criteria are the behaviours covered by the automated tests.
 | Item | Status |
 |---|---|
 | E1-E8 stories above | Done |
-| Real-Gemini testing pass for Phases 4-7 (quota was exhausted) | Open |
-| UI visual polish | Open |
+| Manual testing of all features with the live AI services, including the Groq fallback | Done (completed by the student) |
+| UI visual polish (new theme, header, floating assistant button) | Done |
 | Verify Mermaid diagrams render | Open |
 | PDF export of tailored resume, CV templates, streaming answers | Descoped (blueprint cut line) |
 
@@ -80,5 +80,6 @@ Acceptance criteria are the behaviours covered by the automated tests.
 - Unreliable DNS on the development network: cached resolver, connect timeout and pooled pre-ping.
 - Slow Gemini calls with thinking enabled: disabled for structured output.
 
-**Next**
-- Run the real-Gemini pass and fix prompts, then UI polish, then publish the repository.
+**Result**
+- All features were tested manually by the student against the live AI services after the fallback was added, and are working. The repository is published.
+- Remaining: confirm the Mermaid diagrams render on GitHub.

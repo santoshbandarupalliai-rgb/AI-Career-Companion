@@ -170,7 +170,7 @@ docs/                  design blueprint, product knowledge document (+ exports),
 
 - **LLM fallback and privacy**: if `GROQ_API_KEY` is set, a request that Gemini rejects (rate limit, outage, bad output) is retried on Groq, which then receives the same prompt, including resume text. Leave the key empty to keep all text with Gemini.
 - **Gemini free tier**: the LLM-backed features (resume parsing, JD extraction, explanations, learning plans, tailoring, interview questions and scoring, both assistants) can answer with a rate-limit or "high demand" message. The app then shows the error and stores nothing; resume parsing falls back to a heuristic parser. Deterministic features (matching, skill gap, tracker, dashboard) do not need it.
-- **Live-model output not yet reviewed for every prompt**: tests use fakes. A pass with real Gemini output for the tailoring, interview and Career Assistant prompts is still to be done.
+- **Testing**: automated tests use fakes for the AI services; all features were also tested manually end to end against the live services, including the Groq fallback. AI output quality can still vary between runs.
 - Sample internships are fictional demo data; there is no live job feed.
 - Scanned (image-only) resumes are rejected; there is no OCR.
 - Tailored documents export to .docx only (no PDF export or CV templates).
