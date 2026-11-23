@@ -22,7 +22,7 @@ It is built for students and recent graduates looking for internships, especiall
 
 ### 1.4 Current release
 
-The current release includes: sign-up and sign-in, the student profile, resume upload and parsing, skill review, the internship knowledge base with semantic search, job matching, skill gap analysis, resume and cover-letter tailoring, interview preparation, the application tracker, the Career Assistant and the Product Assistant. All nine modules are available.
+The current release includes: sign-up and sign-in, the student profile, resume upload and parsing, skill review, the internship knowledge base with semantic search, job matching, skill gap analysis, resume and cover-letter tailoring, interview preparation, the application tracker, the Career Assistant and the Product Assistant, plus a dashboard with your progress and a suggested next step. All nine modules are available.
 
 ## 2. Features
 
@@ -189,6 +189,7 @@ The current release includes: sign-up and sign-in, the student profile, resume u
 12. Use "Track" on internships you are interested in, and keep their status up to date on "Applications".
 13. Open "Career Assistant" to ask for help with your own search, for example which internships fit you and what to learn next.
 14. Open "Product Assistant" any time to ask how something works.
+15. Return to the "Dashboard" whenever you want to see your progress, upcoming deadlines and the suggested next step.
 
 ### 3.2 Asking the Product Assistant
 

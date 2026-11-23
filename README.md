@@ -4,7 +4,20 @@ An AI-powered career platform for students looking for internships: profile and 
 
 Runs entirely on **localhost**: React + Vite frontend, FastAPI backend, and Supabase PostgreSQL (+ pgvector) as the database. No local PostgreSQL install is needed.
 
-> Status: **Phase 7 complete**: all nine modules. Authentication, student profile, resume parsing and skill review, the internship knowledge base (sample postings, paste-a-JD, semantic search), explainable job matching and skill-gap analysis, tailored resumes and cover letters with a fact guard, interview practice, the application tracker, the Career Assistant (tool-using agent), and the Product Assistant (RAG chat with memory, sessions and citations). See [`docs/01_DESIGN_BLUEPRINT.md`](docs/01_DESIGN_BLUEPRINT.md) for the full plan.
+> Status: **Phases 1-9 complete** (first version). All nine modules plus a status dashboard are built. Authentication, student profile, resume parsing and skill review, the internship knowledge base (sample postings, paste-a-JD, semantic search), explainable job matching and skill-gap analysis, tailored resumes and cover letters with a fact guard, interview practice, the application tracker, the Career Assistant (tool-using agent), and the Product Assistant (RAG chat with memory, sessions and citations). See [`docs/01_DESIGN_BLUEPRINT.md`](docs/01_DESIGN_BLUEPRINT.md) for the full plan.
+
+## Documentation
+
+| File | What it is |
+|---|---|
+| [`docs/01_DESIGN_BLUEPRINT.md`](docs/01_DESIGN_BLUEPRINT.md) | Requirements, architecture decisions and the build plan |
+| [`docs/02_PRODUCT_KNOWLEDGE_DOCUMENT.md`](docs/02_PRODUCT_KNOWLEDGE_DOCUMENT.md) | Product Knowledge Document (the Product Assistant's only source). Exports: [`docs/exports/`](docs/exports/) (.docx and .pdf) |
+| [`docs/03_DEMO_SCRIPT.md`](docs/03_DEMO_SCRIPT.md) | Step-by-step demo through every module and both assistants |
+| [`docs/04_DIAGRAMS.md`](docs/04_DIAGRAMS.md) | Mermaid diagrams: architecture, RAG pipeline, both assistant graphs, database schema |
+
+## Dashboard
+
+After sign-in the dashboard shows real status from your own data: profile completeness (6 key fields), whether a resume is active, verified vs awaiting-review skills, applications per status, upcoming deadlines, and one suggested next step. It is read-only and uses no AI.
 
 ## How resume parsing works
 
@@ -98,6 +111,17 @@ npm run dev
 
 Open http://localhost:5173. The Vite dev server proxies `/api/*` to the backend on port 8000.
 
+## Scripts
+
+Run from the repo root (they use the backend virtual environment):
+
+```powershell
+cd backend; .venv\Scripts\python -m app.seed                      # index sample internships + product document
+backend\.venv\Scripts\python backend\scripts\export_pkd.py         # product document -> docs/exports/*.docx and *.pdf
+backend\.venv\Scripts\python backend\scripts\make_sample_resume.py # fictional demo resume PDF
+backend\.venv\Scripts\python backend\scripts\delete_e2e_users.py   # remove *-e2e@example.com demo accounts
+```
+
 ## Tests
 
 ```powershell
@@ -118,14 +142,18 @@ backend/
     db.py              SQLAlchemy engine/session (Supabase session pooler)
     security.py        bcrypt + JWT (access/refresh)
     models/  schemas/  services/  routers/
+    llm/               the only Gemini adapter
+    rag/               chunker, local embeddings, pgvector retriever
+    seed/              fictional sample internships
   alembic/             database migrations
+  scripts/             export, demo-resume and cleanup helpers
   tests/
 frontend/
   src/
     api/client.js      axios client: auth header, single-flight token refresh
     auth/              AuthContext (login/register/logout/session restore)
     pages/ components/
-docs/                  design blueprint, (later) product knowledge document & diagrams
+docs/                  design blueprint, product knowledge document (+ exports), demo script, diagrams
 ```
 
 ## Security notes
@@ -134,3 +162,16 @@ docs/                  design blueprint, (later) product knowledge document & di
 - Tokens: 30-minute access JWT + 7-day refresh JWT. Refresh tokens are **rotated** on every use and stored only as SHA-256 hashes. Reuse of a revoked refresh token revokes all of that user's sessions.
 - Supabase: every table has **row-level security enabled** with no policies, so Supabase's public REST API cannot read app data. The backend connects as the table owner and is unaffected. **Every new migration that creates a table must enable RLS on it**; `tests/test_integration_db.py` fails otherwise.
 - Validation errors never echo submitted values. Unhandled errors return a generic 500 with a request id; details go to the server log only.
+- Logs pass through a redacting formatter that strips SQL parameters, email addresses and tokens, tracebacks included. Resume and job-description text is not logged.
+- Every query on user-owned data is filtered by the signed-in user's id; the Career Assistant cannot write data without a button click.
+
+## Known limitations
+
+- **Gemini free tier**: the LLM-backed features (resume parsing, JD extraction, explanations, learning plans, tailoring, interview questions and scoring, both assistants) can answer with a rate-limit or "high demand" message. The app then shows the error and stores nothing; resume parsing falls back to a heuristic parser. Deterministic features (matching, skill gap, tracker, dashboard) do not need it.
+- **Live-model output not yet reviewed for every prompt**: tests use fakes. A pass with real Gemini output for the tailoring, interview and Career Assistant prompts is still to be done.
+- Sample internships are fictional demo data; there is no live job feed.
+- Scanned (image-only) resumes are rejected; there is no OCR.
+- Tailored documents export to .docx only (no PDF export or CV templates).
+- Answers are not streamed; the assistants reply when complete.
+- Runs on localhost only; there is no deployment configuration, email verification or password reset.
+- The semantic thresholds (`SEM_LOW/SEM_HIGH`, `MIN_SCORE`, `ROLE_MIN_SIMILARITY`) were tuned on the sample data and the current embedding model; re-measure if either changes.
