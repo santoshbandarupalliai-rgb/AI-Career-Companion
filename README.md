@@ -4,7 +4,15 @@ An AI-powered career platform for students looking for internships: profile and 
 
 Runs entirely on **localhost**: React + Vite frontend, FastAPI backend, and Supabase PostgreSQL (+ pgvector) as the database. No local PostgreSQL install is needed.
 
-> Status: **Phase 1 complete**: foundation, database migrations and authentication. See [`docs/01_DESIGN_BLUEPRINT.md`](docs/01_DESIGN_BLUEPRINT.md) for the full plan.
+> Status: **Phase 2 complete**: authentication, student profile, resume upload (PDF/DOCX) with Gemini-based parsing, and skill review (extracted → verified / rejected). See [`docs/01_DESIGN_BLUEPRINT.md`](docs/01_DESIGN_BLUEPRINT.md) for the full plan.
+
+## How resume parsing works
+
+1. Upload a PDF or DOCX (max 5 MB). The file type is checked by its content, not just its name. Text is extracted with **PyMuPDF** (multi-column aware) or **python-docx** (paragraphs, tables, headers). Scanned/image-only files are rejected with a clear message.
+2. **Gemini** (`gemini-2.5-flash`, JSON-schema output, temperature 0) structures the text, with instructions to copy only what is written.
+3. A **deterministic grounding check** removes any skill, project technology or contact detail that does not appear in the resume text, and lists what it removed as warnings.
+4. If Gemini is unavailable, a heuristic parser (regex + a skill catalog) produces a partial result; the student can re-run extraction later.
+5. Skills are normalized through an alias catalog (`JS` → JavaScript, `k8s` → Kubernetes; "Java" never matches "JavaScript") and stored as **extracted**. Only the student can mark them **verified** or **rejected**, and re-extraction never overrides those decisions.
 
 ## Prerequisites
 

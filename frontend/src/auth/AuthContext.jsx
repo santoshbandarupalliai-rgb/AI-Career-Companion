@@ -6,6 +6,8 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [bootError, setBootError] = useState("");
+  const [attempt, setAttempt] = useState(0);
 
   // On load, restore the session if tokens exist (the client refreshes them if needed).
   useEffect(() => {
@@ -18,9 +20,19 @@ export function AuthProvider({ children }) {
       }
       try {
         const { data } = await api.get("/auth/me");
-        if (!cancelled) setUser(data);
-      } catch {
-        tokenStore.clear();
+        if (!cancelled) {
+          setUser(data);
+          setBootError("");
+        }
+      } catch (err) {
+        if (cancelled) return;
+        if (err.response?.status === 401) {
+          // The session is really gone (the client already tried a refresh).
+          tokenStore.clear();
+        } else {
+          // Server down, network blip, aborted request: keep the tokens and let the user retry.
+          setBootError("Cannot reach the server right now.");
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -28,6 +40,12 @@ export function AuthProvider({ children }) {
     return () => {
       cancelled = true;
     };
+  }, [attempt]);
+
+  const retry = useCallback(() => {
+    setLoading(true);
+    setBootError("");
+    setAttempt((a) => a + 1);
   }, []);
 
   const login = useCallback(async (email, password) => {
@@ -57,7 +75,10 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const value = useMemo(() => ({ user, loading, login, register, logout }), [user, loading, login, register, logout]);
+  const value = useMemo(
+    () => ({ user, loading, bootError, retry, login, register, logout }),
+    [user, loading, bootError, retry, login, register, logout]
+  );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

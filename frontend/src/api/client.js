@@ -87,9 +87,13 @@ api.interceptors.response.use(
       try {
         await refreshTokens();
         return api(original);
-      } catch {
-        tokenStore.clear();
-        onAuthLost();
+      } catch (refreshError) {
+        // Only a rejected refresh token ends the session; network errors keep it.
+        const s = refreshError.response?.status;
+        if (refreshError.message === "no refresh token" || s === 401 || s === 403) {
+          tokenStore.clear();
+          onAuthLost();
+        }
       }
     }
     return Promise.reject(error);

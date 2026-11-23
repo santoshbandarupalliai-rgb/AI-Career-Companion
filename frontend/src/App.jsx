@@ -5,20 +5,39 @@ import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
 import ComingSoonPage from "./pages/ComingSoonPage.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
+import ResumePage from "./pages/ResumePage.jsx";
 import { MODULES } from "./modules.js";
 
+// Modules that are built; the rest show a "coming in phase N" page.
+const PAGES = {
+  "/profile": ProfilePage,
+  "/resume": ResumePage,
+};
+
 function RequireAuth({ children }) {
-  const { user, loading } = useAuth();
+  const { user, loading, bootError, retry } = useAuth();
   const location = useLocation();
   if (loading) return <div className="center-screen muted">Loading…</div>;
+  if (bootError)
+    return (
+      <div className="center-screen">
+        <div className="card stack">
+          <div className="alert">{bootError} Is the backend running on port 8000?</div>
+          <button className="btn btn-primary" onClick={retry}>
+            Try again
+          </button>
+        </div>
+      </div>
+    );
   if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   return children;
 }
 
 function GuestOnly({ children }) {
-  const { user, loading } = useAuth();
+  const { user, loading, bootError } = useAuth();
   if (loading) return <div className="center-screen muted">Loading…</div>;
-  if (user) return <Navigate to="/dashboard" replace />;
+  if (user || bootError) return <Navigate to="/dashboard" replace />;
   return children;
 }
 
@@ -35,9 +54,10 @@ export default function App() {
         }
       >
         <Route path="/dashboard" element={<DashboardPage />} />
-        {MODULES.map((m) => (
-          <Route key={m.path} path={m.path} element={<ComingSoonPage module={m} />} />
-        ))}
+        {MODULES.map((m) => {
+          const Page = PAGES[m.path];
+          return <Route key={m.path} path={m.path} element={Page ? <Page /> : <ComingSoonPage module={m} />} />;
+        })}
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>

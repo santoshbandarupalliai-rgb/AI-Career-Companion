@@ -8,10 +8,11 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import OperationalError
 
 from app.config import get_settings
 from app.logging_config import configure_logging, request_id_var
-from app.routers import auth, health
+from app.routers import auth, health, profile, resumes, skills
 
 settings = get_settings()
 configure_logging(settings.log_level)
@@ -61,5 +62,21 @@ async def validation_error_handler(request: Request, exc: RequestValidationError
     return JSONResponse(status_code=422, content={"detail": "Validation failed", "errors": errors})
 
 
+@app.exception_handler(OperationalError)
+async def database_unavailable_handler(request: Request, exc: OperationalError):
+    # Connection-level DB failures (network drop, pooler restart) are transient: say so.
+    log.error("database operational error on %s %s: %s", request.method, request.url.path, str(exc.orig)[:200])
+    return JSONResponse(
+        status_code=503,
+        content={
+            "detail": "The database is temporarily unreachable. Please try again in a moment.",
+            "request_id": request_id_var.get(),
+        },
+    )
+
+
 app.include_router(health.router)
 app.include_router(auth.router)
+app.include_router(profile.router)
+app.include_router(resumes.router)
+app.include_router(skills.router)
