@@ -6,7 +6,7 @@ This document describes the AI Career Companion product. It is the only source t
 
 ### 1.1 What the product is
 
-AI Career Companion is a web application that helps students find and apply for internships. A student builds a profile, uploads a resume, confirms the skills found in it, browses an internship knowledge base, gets explainable match scores and skill-gap analysis, and (in later releases) gets tailored resumes and cover letters, interview practice, an application tracker and a chat-based Career Assistant.
+AI Career Companion is a web application that helps students find and apply for internships. A student builds a profile, uploads a resume, confirms the skills found in it, browses an internship knowledge base, gets explainable match scores and skill-gap analysis, tailored resumes and cover letters, interview practice, and (in later releases) an application tracker and a chat-based Career Assistant.
 
 ### 1.2 Who it is for
 
@@ -22,7 +22,7 @@ It is built for students and recent graduates looking for internships, especiall
 
 ### 1.4 Current release
 
-The current release includes: sign-up and sign-in, the student profile, resume upload and parsing, skill review, the internship knowledge base with semantic search, job matching, skill gap analysis, and the Product Assistant. Resume and cover-letter tailoring, interview preparation, the application tracker and the Career Assistant are planned and show a "coming soon" page.
+The current release includes: sign-up and sign-in, the student profile, resume upload and parsing, skill review, the internship knowledge base with semantic search, job matching, skill gap analysis, resume and cover-letter tailoring, interview preparation, and the Product Assistant. The application tracker and the Career Assistant are planned and show a "coming soon" page.
 
 ## 2. Features
 
@@ -121,25 +121,25 @@ The current release includes: sign-up and sign-in, the student profile, resume u
 
 **Output:** Acquired skills, critical gaps, secondary gaps, a coverage percentage, and an optional learning plan.
 
-### 2.10 Resume and cover-letter tailoring (Planned)
+### 2.10 Resume and cover-letter tailoring (Available)
 
-**Purpose:** Adapt the student's resume points and a cover letter to a specific posting.
+**Purpose:** Adapt the student's resume and write a cover letter for a specific internship without inventing anything.
 
-**How it works:** The AI drafts text from the student's verified profile and the posting. A fact guard then checks that every employer, title, date and skill in the output exists in the student's real profile and flags anything that does not. The student approves before anything is saved.
+**How it works:** The student picks an internship and asks for a tailored resume or a cover letter. The AI is given only the student's real material: the posting, the verified skills, and the entries on the active resume. For the resume, the AI refers to the student's real experience and project entries by number and only rewrites their bullet points and a short summary. Employers, job titles, dates and project names are never written by the AI; they are copied from the resume. The skills list may contain only verified skills. A deterministic fact guard then checks everything the AI wrote and marks anything it cannot match: a number or year that is not in the profile or resume, a skill that is not verified (or was rejected), a proper name that is not in the profile, resume or posting, and a bullet that shares too little wording with the resume entry it came from. Marked items appear as "Check" notes next to the exact bullet or sentence, and unverified skills are removed from the skills list automatically. The result is only a draft: nothing is saved until the student edits it and approves it. When the student saves, the checks run again on what they submitted, so edits are checked too, entry details are copied from the resume again, and if anything is still flagged the student must confirm that it is accurate. Saved documents can be downloaded as Word (.docx) files. A student needs verified skills or a parsed resume first; if the AI is unavailable, no draft is produced and nothing is made up.
 
-**How to use:** Not yet available. It will be opened from "Resume & Cover Letter".
+**How to use:** Open "Resume & Cover Letter", choose an internship, and choose "Tailor my resume" or "Write a cover letter". Read the draft, fix or delete anything marked "Check", then choose "Approve and save". Download or delete saved documents from the list below.
 
-**Output:** A tailored draft and a list of the facts it used.
+**Output:** A draft with notes on anything unsupported, the list of facts it is based on, and, once approved, a saved document that can be downloaded as .docx.
 
-### 2.11 Interview preparation (Planned)
+### 2.11 Interview preparation (Available)
 
-**Purpose:** Practise for interviews with questions based on the role and the student's resume.
+**Purpose:** Practise for interviews with questions based on a role or a specific internship and on the student's real skills and projects, and get scored feedback.
 
-**How it works:** The AI generates questions, then scores and gives feedback on the student's typed answers against a rubric. Sessions are saved.
+**How it works:** The student chooses a role or an internship and a number of questions (5, 8 or 10). The AI writes the questions using the role, the posting (if one is chosen), the student's verified skills and the real projects and experience on the active resume. Questions come in four categories: technical, behavioral, situational and "about your resume" (only when the resume has projects or experience to ask about). There is no fixed question bank: if the AI cannot produce questions, no session is created. The student types an answer to each question and asks for feedback. The AI scores the answer with a fixed rubric of relevance and accuracy (0 to 4), structure and clarity (0 to 3) and depth and examples (0 to 3), for a total out of 10, and gives strengths, improvements and an outline of what a strong answer would cover. This is AI feedback, not an official grade. Answers can be re-scored. Sessions, answers, scores and feedback are saved per student, and the session list shows how many questions are answered and the average score.
 
-**How to use:** Not yet available. It will be opened from "Interview Prep".
+**How to use:** Open "Interview Prep", choose a role or an internship, and choose "Start practice". Answer a question and choose "Get feedback". Reopen or delete earlier sessions from the list.
 
-**Output:** Questions, a rubric score and feedback.
+**Output:** A saved practice session with questions, answers, scores out of 10 and written feedback.
 
 ### 2.12 Application tracker (Planned)
 
@@ -174,7 +174,9 @@ The current release includes: sign-up and sign-in, the student profile, resume u
 7. Optionally add a posting by pasting its job description, reviewing the draft, and saving.
 8. Open "Job Matching" to see how well each internship fits you and why.
 9. Open "Skill Gap" to see which skills to learn next for a role or an internship.
-10. Open "Product Assistant" any time to ask how something works.
+10. Open "Resume & Cover Letter" to tailor a resume or write a cover letter for an internship, review it, and save it.
+11. Open "Interview Prep" to practise questions for a role and get feedback on your answers.
+12. Open "Product Assistant" any time to ask how something works.
 
 ### 3.2 Asking the Product Assistant
 
@@ -194,6 +196,8 @@ The current release includes: sign-up and sign-in, the student profile, resume u
 
 **Why did a skill from my resume not raise my score?** Only verified skills count. Unverified resume skills are listed as a hint on the match page.
 
+**Can the AI add skills or experience I do not have to my resume?** No. Employers, titles and dates are copied from your resume, the skills list only contains verified skills, and anything the AI writes that cannot be matched to your profile or resume is flagged for you to fix before you can save.
+
 **Are the sample internships real?** No. They come from fictional companies and are labelled "Sample". There is nothing to apply to.
 
 **Who can see the internships I add?** Only you.
@@ -211,7 +215,7 @@ Browser (React + Vite, localhost:5173)
    |  JSON over HTTP, /api/* proxied
    v
 FastAPI backend (localhost:8000)
-   |-- routers: auth, profile, resumes, skills, internships, matching, skill-gap, chat/product
+   |-- routers: auth, profile, resumes, skills, internships, matching, skill-gap, tailoring, interview, chat/product
    |-- services: parsing, skills, internships, match engine (pure rules), assistants
    |-- app/llm/client.py  --------> Google Gemini (structured JSON + text)
    |-- app/rag/*  (local fastembed model: embeddings, chunker, retriever)
@@ -235,7 +239,7 @@ The Product Assistant is a LangGraph graph with five steps in a line: load histo
 
 ### 4.5 Data model
 
-Main tables: `users` and `refresh_tokens` (accounts), `student_profiles`, `resumes` and `resume_extractions`, `skills` and `student_skills` (status extracted, verified or rejected), `internships` and `internship_skills` (importance required or preferred), `rag_documents` and `rag_chunks` (retrieval index with vectors), `chat_sessions` (user, assistant type, title, summary), `chat_messages` (session, user, role, content, citations) and `message_feedback` (rating per message). Every table has row-level security enabled so the database's public REST interface exposes nothing.
+Main tables: `users` and `refresh_tokens` (accounts), `student_profiles`, `resumes` and `resume_extractions`, `skills` and `student_skills` (status extracted, verified or rejected), `internships` and `internship_skills` (importance required or preferred), `rag_documents` and `rag_chunks` (retrieval index with vectors), `generated_documents` (approved resumes and cover letters, with the flags the student confirmed), `interview_sessions` and `interview_items` (questions, answers, scores, feedback), `chat_sessions` (user, assistant type, title, summary), `chat_messages` (session, user, role, content, citations) and `message_feedback` (rating per message). Every table has row-level security enabled so the database's public REST interface exposes nothing.
 
 ### 4.5.1 Isolation of chats
 
@@ -243,7 +247,7 @@ Every chat query filters by user ID, session ID and assistant type together. A s
 
 ### 4.6 Security
 
-Passwords are hashed with bcrypt. Tokens are signed JWTs. Uploaded files are validated by content and size. Error messages do not echo submitted values. Every user-owned query is filtered by the signed-in user's ID.
+AI-written resume and cover-letter text passes through a deterministic fact guard before the student can save it. Passwords are hashed with bcrypt. Tokens are signed JWTs. Uploaded files are validated by content and size. Error messages do not echo submitted values. Every user-owned query is filtered by the signed-in user's ID.
 
 ## 5. Tech Stack
 

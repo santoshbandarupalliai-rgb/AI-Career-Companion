@@ -237,3 +237,9 @@ ul.plain { list-style: none; margin: 0; padding: 0; display: flex; flex-directio
 .gap-item .hint { color: var(--warn); }
 ol.plan { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; }
 ol.plan p { margin: 0; }
+
+/* ---------- Phase 6: tailoring and interview prep ---------- */
+.stack-sm { display: flex; flex-direction: column; gap: 0.3rem; }
+.flag-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.25rem; }
+.feedback { border-top: 1px solid var(--border); padding-top: 0.75rem; }
+.question { font-size: 1.05rem; font-weight: 600; margin: 0; }

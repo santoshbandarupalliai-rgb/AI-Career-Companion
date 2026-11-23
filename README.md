@@ -4,7 +4,7 @@ An AI-powered career platform for students looking for internships: profile and 
 
 Runs entirely on **localhost**: React + Vite frontend, FastAPI backend, and Supabase PostgreSQL (+ pgvector) as the database. No local PostgreSQL install is needed.
 
-> Status: **Phase 5 complete**: authentication, student profile, resume parsing and skill review, the internship knowledge base (sample postings, paste-a-JD, semantic search), explainable job matching and skill-gap analysis, and the Product Assistant (RAG chat with memory, sessions and citations). See [`docs/01_DESIGN_BLUEPRINT.md`](docs/01_DESIGN_BLUEPRINT.md) for the full plan.
+> Status: **Phase 6 complete**: authentication, student profile, resume parsing and skill review, the internship knowledge base (sample postings, paste-a-JD, semantic search), explainable job matching and skill-gap analysis, tailored resumes and cover letters with a fact guard, interview practice, and the Product Assistant (RAG chat with memory, sessions and citations). See [`docs/01_DESIGN_BLUEPRINT.md`](docs/01_DESIGN_BLUEPRINT.md) for the full plan.
 
 ## How resume parsing works
 
@@ -19,6 +19,11 @@ Runs entirely on **localhost**: React + Vite frontend, FastAPI backend, and Supa
 1. **Sample data**: 20 postings from *fictional* companies, stored with `source='sample'` and shown with a "Sample" badge. Seed them once with `python -m app.seed` (idempotent).
 2. **Add from a job description**: paste the text; Gemini extracts the fields and required/preferred skills, a grounding check drops anything not in the pasted text, and you review and edit the draft before anything is saved. Postings you add are private to you.
 3. **Semantic search**: each posting is chunked and embedded locally with `fastembed` (`BAAI/bge-small-en-v1.5`, 384-dim; the ~130 MB model downloads on first use) into pgvector, searched by cosine similarity (HNSW index). Keyword filters (work mode, location, skill, source) combine with it.
+
+## How tailoring and interview prep work
+
+- **Tailoring**: the AI may only rephrase what is already in your profile and resume. Employers, titles and dates are copied from your resume (the model refers to entries by index), the resume skills list contains only *verified* skills, and a deterministic **fact guard** flags invented numbers, unverified skills, unknown names and bullets that do not resemble their source. You get a draft, edit it, and approve it; saving re-runs the checks and asks you to confirm anything still flagged. Export to .docx.
+- **Interview prep**: questions generated from the role or posting plus your verified skills and real projects (no canned bank), scored against a fixed 0-10 rubric (relevance 4, structure 3, depth 3) with feedback. Sessions are saved. Scores are AI feedback, not a grade.
 
 ## How matching and skill gap work
 
