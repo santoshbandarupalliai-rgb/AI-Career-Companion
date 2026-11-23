@@ -66,6 +66,7 @@ def add_turn(
     user_text: str,
     assistant_text: str,
     citations: list[dict],
+    tool_calls: list[dict] | None = None,
 ) -> tuple[ChatMessage, ChatMessage]:
     """Store one question/answer pair and touch the session. Commits."""
     session = get_session(db, user_id, assistant_type, session_id)
@@ -74,7 +75,7 @@ def add_turn(
     u = ChatMessage(session_id=session.id, user_id=user_id, seq=0, role="user", content=user_text, created_at=now)
     a = ChatMessage(
         session_id=session.id, user_id=user_id, seq=1, role="assistant", content=assistant_text,
-        citations=citations, created_at=now,
+        citations=citations, tool_calls=tool_calls or [], created_at=now,
     )
     db.add_all([u, a])
     if first and session.title == "New chat":
@@ -94,6 +95,34 @@ def set_summary(db: Session, user_id: uuid.UUID, assistant_type: str, session_id
     s = get_session(db, user_id, assistant_type, session_id)
     s.summary, s.summarized_count = summary, count
     db.commit()
+
+
+def get_assistant_message(
+    db: Session, user_id: uuid.UUID, assistant_type: str, message_id: uuid.UUID, *, for_update: bool = False
+) -> ChatMessage:
+    """An assistant message in one of this user's sessions of this assistant type, else ChatNotFound."""
+    q = (
+        select(ChatMessage)
+        .join(ChatSession, ChatSession.id == ChatMessage.session_id)
+        .where(
+            ChatMessage.id == message_id,
+            ChatMessage.user_id == user_id,
+            ChatMessage.role == "assistant",
+            ChatSession.user_id == user_id,
+            ChatSession.assistant_type == assistant_type,
+        )
+    )
+    if for_update:
+        q = q.with_for_update(of=ChatMessage).execution_options(populate_existing=True)  # fresh tool_calls
+    msg = db.scalar(q)
+    if msg is None:
+        raise ChatNotFound("Message not found")
+    return msg
+
+
+def set_tool_calls(msg: ChatMessage, tool_calls: list[dict]) -> None:
+    """Replace a message's tool_calls (a new list, so the JSON column is marked dirty). Caller commits."""
+    msg.tool_calls = [dict(t) for t in tool_calls]
 
 
 def set_feedback(

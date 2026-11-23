@@ -243,3 +243,16 @@ ol.plan p { margin: 0; }
 .flag-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.25rem; }
 .feedback { border-top: 1px solid var(--border); padding-top: 0.75rem; }
 .question { font-size: 1.05rem; font-weight: 600; margin: 0; }
+
+/* ---------- Phase 7: applications and Career Assistant ---------- */
+.app-card h2 { font-size: 1.05rem; }
+.status-select { width: auto; font-weight: 600; }
+.status-offer { color: var(--ok-text); }
+.status-rejected, .status-withdrawn { color: var(--muted); }
+.app-detail { border-top: 1px solid var(--border); padding-top: 0.75rem; }
+.clamp { margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+ol.history { margin: 0.3rem 0 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.9rem; }
+.proposal { margin-top: 0.6rem; padding: 0.6rem 0.75rem; border-radius: 10px; border: 1px solid var(--primary); background: var(--card, transparent); display: flex; flex-direction: column; gap: 0.45rem; }
+.proposal.state-done { border-color: var(--ok-text); }
+.proposal.state-failed { border-color: var(--danger-text); }
+.proposal.state-cancelled { border-color: var(--border); color: var(--muted); }

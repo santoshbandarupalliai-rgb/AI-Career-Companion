@@ -1,11 +1,39 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { api, errorMessage } from "../api/client.js";
 import AddInternship from "../components/AddInternship.jsx";
 
 const PAGE = 12;
 const MODE_LABEL = { remote: "Remote", onsite: "On-site", hybrid: "Hybrid" };
 
-function InternshipCard({ item, onDelete }) {
+function TrackButton({ item, tracked, onTracked }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  if (tracked) return <Link className="btn btn-ghost small" to="/applications">✓ In tracker</Link>;
+  async function track() {
+    setBusy(true);
+    setError("");
+    try {
+      await api.post("/applications", { internship_id: item.id });
+      onTracked(item.id);
+    } catch (err) {
+      if (err.response?.status === 409) onTracked(item.id);
+      else setError(errorMessage(err, "Could not add it to your tracker."));
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <>
+      <button className="btn btn-ghost small" onClick={track} disabled={busy} title="Add to your application tracker as Saved">
+        {busy ? "Adding…" : "Track"}
+      </button>
+      {error && <span className="small warn">{error}</span>}
+    </>
+  );
+}
+
+function InternshipCard({ item, onDelete, tracked, onTracked }) {
   const [open, setOpen] = useState(false);
   const meta = [item.location, MODE_LABEL[item.work_mode], item.stipend, item.duration]
     .filter(Boolean)
@@ -49,6 +77,7 @@ function InternshipCard({ item, onDelete }) {
       )}
       <div className="actions">
         <button className="btn btn-ghost small" onClick={() => setOpen(!open)}>{open ? "Hide details" : "Show details"}</button>
+        <TrackButton item={item} tracked={tracked} onTracked={onTracked} />
         {item.source === "user" && (
           <button className="btn btn-ghost small danger" onClick={() => onDelete(item)}>Delete</button>
         )}
@@ -68,6 +97,15 @@ export default function InternshipsPage() {
   const [submittedQ, setSubmittedQ] = useState("");
   const [filters, setFilters] = useState({ work_mode: "", source: "", skill: "", location: "" });
   const reqId = useRef(0);
+  const [trackedIds, setTrackedIds] = useState(() => new Set());
+
+  useEffect(() => {
+    api.get("/applications").then(
+      ({ data }) => setTrackedIds(new Set(data.items.map((a) => a.internship_id).filter(Boolean))),
+      () => {} // the Track button still works; a duplicate is reported as already tracked
+    );
+  }, []);
+  const markTracked = useCallback((id) => setTrackedIds((s) => new Set(s).add(id)), []);
 
   const load = useCallback(
     async (offset = 0) => {
@@ -200,7 +238,7 @@ export default function InternshipsPage() {
           </p>
           <div className="internship-list">
             {items.map((item) => (
-              <InternshipCard key={item.id} item={item} onDelete={remove} />
+              <InternshipCard key={item.id} item={item} onDelete={remove} tracked={trackedIds.has(item.id)} onTracked={markTracked} />
             ))}
           </div>
           {!(searching && smart) && items.length < total && (

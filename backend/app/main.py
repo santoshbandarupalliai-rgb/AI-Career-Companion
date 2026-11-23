@@ -12,7 +12,7 @@ from sqlalchemy.exc import OperationalError
 
 from app.config import get_settings
 from app.logging_config import configure_logging, request_id_var
-from app.routers import auth, chat_product, health, internships, interview, matching, profile, resumes, skills, tailoring
+from app.routers import applications, auth, chat_career, chat_product, health, internships, interview, matching, profile, resumes, skills, tailoring
 
 settings = get_settings()
 configure_logging(settings.log_level)
@@ -86,3 +86,5 @@ app.include_router(matching.router)
 app.include_router(matching.gap_router)
 app.include_router(tailoring.router)
 app.include_router(interview.router)
+app.include_router(applications.router)
+app.include_router(chat_career.router)

@@ -4,7 +4,7 @@ An AI-powered career platform for students looking for internships: profile and 
 
 Runs entirely on **localhost**: React + Vite frontend, FastAPI backend, and Supabase PostgreSQL (+ pgvector) as the database. No local PostgreSQL install is needed.
 
-> Status: **Phase 6 complete**: authentication, student profile, resume parsing and skill review, the internship knowledge base (sample postings, paste-a-JD, semantic search), explainable job matching and skill-gap analysis, tailored resumes and cover letters with a fact guard, interview practice, and the Product Assistant (RAG chat with memory, sessions and citations). See [`docs/01_DESIGN_BLUEPRINT.md`](docs/01_DESIGN_BLUEPRINT.md) for the full plan.
+> Status: **Phase 7 complete**: all nine modules. Authentication, student profile, resume parsing and skill review, the internship knowledge base (sample postings, paste-a-JD, semantic search), explainable job matching and skill-gap analysis, tailored resumes and cover letters with a fact guard, interview practice, the application tracker, the Career Assistant (tool-using agent), and the Product Assistant (RAG chat with memory, sessions and citations). See [`docs/01_DESIGN_BLUEPRINT.md`](docs/01_DESIGN_BLUEPRINT.md) for the full plan.
 
 ## How resume parsing works
 
@@ -36,6 +36,11 @@ Scores are **deterministic**: fixed rules over your *verified* skills, so the sa
 - Graduation-year and minimum-CGPA requirements are shown as met / not met / unknown when the posting states them, but do not change the score.
 - **Skill gap** ranks missing skills (critical = required, secondary = preferred) by how many postings ask for them, for one internship or a target role.
 - The AI is used only for the optional "Explain in words" and "Create learning plan" buttons, on top of numbers it cannot change.
+
+## How the application tracker and Career Assistant work
+
+- **Tracker**: track a knowledge-base posting with one click (company and role are copied from it) or add an external one. Statuses: saved, applied, online assessment, interview, offer, rejected, withdrawn. Every change is logged with an optional note; deadlines show days left.
+- **Career Assistant**: a LangGraph agent that calls the app's own tools (profile, internship search, match ranking and scoring, skill gap, interview questions, tracker) for up to 4 steps per message, then answers from the results. Scores and gaps come from the same deterministic rules as the other pages. It **cannot change data**: adding or updating an application shows up as a proposal under the answer, and nothing happens until you press Confirm. The model only sees short item codes, never database ids, and the server checks every code.
 
 ## How the Product Assistant works
 

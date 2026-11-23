@@ -18,11 +18,11 @@ It is built for students and recent graduates looking for internships, especiall
 - **Extracted is not verified.** Skills read from a resume are "extracted" until the student confirms them. Only "verified" skills count in matching and skill-gap analysis.
 - **AI output is checked.** After the AI reads a document, a deterministic check removes anything that does not actually appear in the source text.
 - **Sample data is labelled.** Demo internships come from fictional companies and carry a "Sample" badge.
-- **Two separate assistants.** The Product Assistant (answers questions about the product from this document) and the Career Assistant (planned; helps with the student's own career using their profile) are different features with different data access.
+- **Two separate assistants.** The Product Assistant (answers questions about the product from this document) and the Career Assistant (helps with the student's own career using their profile and the other tools) are different features with different data access.
 
 ### 1.4 Current release
 
-The current release includes: sign-up and sign-in, the student profile, resume upload and parsing, skill review, the internship knowledge base with semantic search, job matching, skill gap analysis, resume and cover-letter tailoring, interview preparation, and the Product Assistant. The application tracker and the Career Assistant are planned and show a "coming soon" page.
+The current release includes: sign-up and sign-in, the student profile, resume upload and parsing, skill review, the internship knowledge base with semantic search, job matching, skill gap analysis, resume and cover-letter tailoring, interview preparation, the application tracker, the Career Assistant and the Product Assistant. All nine modules are available.
 
 ## 2. Features
 
@@ -141,25 +141,25 @@ The current release includes: sign-up and sign-in, the student profile, resume u
 
 **Output:** A saved practice session with questions, answers, scores out of 10 and written feedback.
 
-### 2.12 Application tracker (Planned)
+### 2.12 Application tracker (Available)
 
-**Purpose:** Track every application from saved to offer.
+**Purpose:** Track every application from saved to offer, with a history of every status change.
 
-**How it works:** Each application has a status (saved, applied, online assessment, interview, offer, rejected, withdrawn), dates and notes, and every status change is logged.
+**How it works:** Each application has a status (saved, applied, online assessment, interview, offer, rejected, withdrawn), an applied date, an optional deadline, the resume used and notes. An application can be linked to a posting from the internship knowledge base, in which case its company and role are copied from the posting and cannot be edited, or it can be an external application where the student types the company and role. A posting can be tracked only once. Every status change is recorded with the time, the old and new status and an optional note. Moving past "saved" sets the applied date to today if it was empty; the student can correct it. Any status can be changed to any other, so mistakes can be fixed, and the history keeps every step. Deadlines show how many days are left and are highlighted when three days or fewer remain.
 
-**How to use:** Not yet available. It will be opened from "Applications".
+**How to use:** On "Internship Knowledge Base", choose "Track" on a posting to add it as Saved. Or open "Applications" and choose "Add application" for an external posting. Change the status with the drop-down on each application; open "Details" to add a note for the next change, set dates, the resume used and notes, see the history, or remove the application. Use the status buttons at the top to filter. The Career Assistant can also propose adding or updating applications.
 
-**Output:** A board or list of applications with history.
+**Output:** A list of applications with counts per status and a full status history for each.
 
-### 2.13 Career Assistant (Planned)
+### 2.13 Career Assistant (Available)
 
-**Purpose:** A chat assistant that helps with the student's own career using their profile and the other tools.
+**Purpose:** A chat assistant that helps with the student's own career: finding and comparing internships, explaining fit and skill gaps, preparing for interviews, and keeping the tracker up to date.
 
-**How it works:** It will be a LangGraph agent that can call tools such as reading the profile, searching internships, scoring a match and listing applications. Actions that change data will require confirmation. It is separate from the Product Assistant: it does not read this document, and the Product Assistant cannot see profile data.
+**How it works:** It is a LangGraph agent. For each message it decides, one step at a time, whether to call a tool or to answer, with at most four tool calls per message. Its tools are: read the profile and verified skills, search internships, rank the best matches, score one match in detail, analyse the skill gap for an internship or role, create interview practice questions (saved on the Interview Prep page), list applications, and propose a tracker change. The tools use the same rules as the rest of the product, so scores and gaps are identical to the Job Matching and Skill Gap pages, and only verified skills count. Every fact in an answer must come from a tool result; if a tool finds nothing, the assistant says so. The AI never sees database IDs: items it has seen get short codes that the server checks, so it cannot act on an item it was not shown. The assistant never changes data on its own. Adding an internship to the tracker or changing an application's status appears as a proposal under the answer with "Confirm" and "Cancel" buttons; nothing changes until the student confirms, and each proposal can be used once. Chats are saved per student with titles, memory of earlier messages (older messages are summarised), and 👍/👎 feedback. Each answer lists the tools it used. It is separate from the Product Assistant: it does not read this document, and the Product Assistant cannot see profile data.
 
-**How to use:** Not yet available. It will be opened from "Career Assistant".
+**How to use:** Open "Career Assistant", choose "New chat" or an example such as "Find internships that fit me and add the top one to my tracker", and read the answer. If it proposes a change, check it and choose "Confirm" or "Cancel". Expand "Used N tools" to see what it looked up. For questions about how the app works, use the Product Assistant.
 
-**Output:** Answers and tool results in a chat.
+**Output:** Answers grounded in the student's own data, tool traces, and confirmable tracker changes.
 
 ## 3. How to Use
 
@@ -176,7 +176,9 @@ The current release includes: sign-up and sign-in, the student profile, resume u
 9. Open "Skill Gap" to see which skills to learn next for a role or an internship.
 10. Open "Resume & Cover Letter" to tailor a resume or write a cover letter for an internship, review it, and save it.
 11. Open "Interview Prep" to practise questions for a role and get feedback on your answers.
-12. Open "Product Assistant" any time to ask how something works.
+12. Use "Track" on internships you are interested in, and keep their status up to date on "Applications".
+13. Open "Career Assistant" to ask for help with your own search, for example which internships fit you and what to learn next.
+14. Open "Product Assistant" any time to ask how something works.
 
 ### 3.2 Asking the Product Assistant
 
@@ -202,7 +204,11 @@ The current release includes: sign-up and sign-in, the student profile, resume u
 
 **Who can see the internships I add?** Only you.
 
-**What happens if the AI service is down?** Resume parsing falls back to a basic parser, job-description extraction fills in recognised skills only, and the Product Assistant reports an error rather than guessing.
+**Can the Career Assistant change my applications by itself?** No. It can only propose a change. Nothing is added or updated until you choose "Confirm" under its answer.
+
+**What is the difference between the Career Assistant and the Product Assistant?** The Career Assistant works with your own profile, matches and applications. The Product Assistant answers questions about how the app works, only from this document, and cannot see your data.
+
+**What happens if the AI service is down?** Resume parsing falls back to a basic parser, job-description extraction fills in recognised skills only, and the Product Assistant and Career Assistant report an error rather than guessing; nothing is saved from a failed answer.
 
 ## 4. Architecture
 
@@ -215,7 +221,7 @@ Browser (React + Vite, localhost:5173)
    |  JSON over HTTP, /api/* proxied
    v
 FastAPI backend (localhost:8000)
-   |-- routers: auth, profile, resumes, skills, internships, matching, skill-gap, tailoring, interview, chat/product
+   |-- routers: auth, profile, resumes, skills, internships, matching, skill-gap, tailoring, interview, applications, chat/product, chat/career
    |-- services: parsing, skills, internships, match engine (pure rules), assistants
    |-- app/llm/client.py  --------> Google Gemini (structured JSON + text)
    |-- app/rag/*  (local fastembed model: embeddings, chunker, retriever)
@@ -237,9 +243,13 @@ Answering: embed the question, retrieve the closest chunks by cosine similarity 
 
 The Product Assistant is a LangGraph graph with five steps in a line: load history, condense question, retrieve, generate, persist. Condense rewrites a follow-up into a standalone question using prior messages. If retrieval finds nothing above the relevance threshold, the generate step is skipped and a fixed "not in the product documentation" reply is returned. No database transaction is held open while the AI is called.
 
+### 4.4.1 Career Assistant workflow
+
+The Career Assistant is a separate LangGraph graph: load context, then an agent step that either calls one tool or answers, looping through the tools step at most four times, then persist and summarise. Each agent step is one structured AI call. Tool errors are passed back to the AI as observations so it can recover or explain. Proposed tracker changes are stored on the answer as pending actions and are only carried out by a separate confirm request from the student.
+
 ### 4.5 Data model
 
-Main tables: `users` and `refresh_tokens` (accounts), `student_profiles`, `resumes` and `resume_extractions`, `skills` and `student_skills` (status extracted, verified or rejected), `internships` and `internship_skills` (importance required or preferred), `rag_documents` and `rag_chunks` (retrieval index with vectors), `generated_documents` (approved resumes and cover letters, with the flags the student confirmed), `interview_sessions` and `interview_items` (questions, answers, scores, feedback), `chat_sessions` (user, assistant type, title, summary), `chat_messages` (session, user, role, content, citations) and `message_feedback` (rating per message). Every table has row-level security enabled so the database's public REST interface exposes nothing.
+Main tables: `users` and `refresh_tokens` (accounts), `student_profiles`, `resumes` and `resume_extractions`, `skills` and `student_skills` (status extracted, verified or rejected), `internships` and `internship_skills` (importance required or preferred), `rag_documents` and `rag_chunks` (retrieval index with vectors), `generated_documents` (approved resumes and cover letters, with the flags the student confirmed), `interview_sessions` and `interview_items` (questions, answers, scores, feedback), `applications` and `application_events` (tracked applications and their status history), `chat_sessions` (user, assistant type, title, summary), `chat_messages` (session, user, role, content, citations, tool steps and proposed actions) and `message_feedback` (rating per message). Every table has row-level security enabled so the database's public REST interface exposes nothing.
 
 ### 4.5.1 Isolation of chats
 
@@ -247,7 +257,7 @@ Every chat query filters by user ID, session ID and assistant type together. A s
 
 ### 4.6 Security
 
-AI-written resume and cover-letter text passes through a deterministic fact guard before the student can save it. Passwords are hashed with bcrypt. Tokens are signed JWTs. Uploaded files are validated by content and size. Error messages do not echo submitted values. Every user-owned query is filtered by the signed-in user's ID.
+AI-written resume and cover-letter text passes through a deterministic fact guard before the student can save it. Passwords are hashed with bcrypt. Tokens are signed JWTs. Uploaded files are validated by content and size. Error messages do not echo submitted values. Every user-owned query is filtered by the signed-in user's ID. The Career Assistant cannot write data: its proposals are executed only when the student confirms them, using parameters stored on the server.
 
 ## 5. Tech Stack
 
@@ -262,7 +272,7 @@ AI-written resume and cover-letter text passes through a deterministic fact guar
 | pgvector | Vector database | Keeps vectors in the same database as everything else, giving one datastore, transactions and joins, instead of running a separate vector store. It satisfies the requirement for a vector database. |
 | fastembed with BAAI/bge-small-en-v1.5 | Embeddings | Small (about 130 MB), fast, runs locally on CPU with no API cost or rate limits, and gives good English retrieval quality at 384 dimensions. |
 | Google Gemini 2.5 Flash | Language model | Fast, inexpensive, supports JSON-schema output for reliable extraction, and has a free tier. All calls go through one adapter. |
-| LangGraph | Assistant workflow | Makes the assistant pipeline an explicit graph of small steps that are easy to test and extend; the planned Career Assistant needs tool loops that LangGraph handles well. |
+| LangGraph | Assistant workflow | Makes the assistant pipeline an explicit graph of small steps that are easy to test and extend; the Career Assistant uses a tool loop (agent step, tool, back to the agent) that LangGraph expresses directly. |
 | PyMuPDF and python-docx | Resume text extraction | Reliable PDF text extraction (including multiple columns) and DOCX reading, with no external services. |
 | bcrypt and PyJWT | Authentication | Standard, well-reviewed password hashing and signed tokens. |
 | pytest | Testing | Fast API tests against an in-memory database, plus integration tests against the real database. |

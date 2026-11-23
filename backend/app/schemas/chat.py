@@ -57,3 +57,45 @@ class SendResponse(BaseModel):
 
 class FeedbackIn(BaseModel):
     rating: Literal[1, -1]
+
+
+# ---------- Career Assistant ----------
+
+class ToolStepOut(BaseModel):
+    tool: str
+    args: dict = Field(default_factory=dict)
+    ok: bool
+    summary: str
+
+
+class ActionOut(BaseModel):
+    id: str
+    kind: Literal["track", "status"]
+    label: str
+    state: Literal["pending", "done", "cancelled", "failed"]
+    result: str | None = None
+
+
+class CareerMessageOut(BaseModel):
+    id: uuid.UUID
+    role: Literal["user", "assistant", "tool"]
+    content: str
+    steps: list[ToolStepOut] = Field(default_factory=list)
+    actions: list[ActionOut] = Field(default_factory=list)
+    rating: int | None = None
+    created_at: datetime
+
+
+class CareerSessionDetail(BaseModel):
+    session: SessionOut
+    messages: list[CareerMessageOut]
+
+
+class CareerSendResponse(BaseModel):
+    session: SessionOut
+    user_message: CareerMessageOut
+    assistant_message: CareerMessageOut
+
+
+class ActionDecision(BaseModel):
+    decision: Literal["confirm", "cancel"]
