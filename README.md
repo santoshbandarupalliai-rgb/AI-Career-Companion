@@ -4,7 +4,7 @@ An AI-powered career platform for students looking for internships: profile and 
 
 Runs entirely on **localhost**: React + Vite frontend, FastAPI backend, and Supabase PostgreSQL (+ pgvector) as the database. No local PostgreSQL install is needed.
 
-> Status: **Phase 2 complete**: authentication, student profile, resume upload (PDF/DOCX) with Gemini-based parsing, and skill review (extracted → verified / rejected). See [`docs/01_DESIGN_BLUEPRINT.md`](docs/01_DESIGN_BLUEPRINT.md) for the full plan.
+> Status: **Phase 3 complete**: authentication, student profile, resume parsing and skill review, plus the internship knowledge base (sample postings, paste-a-JD, semantic search). See [`docs/01_DESIGN_BLUEPRINT.md`](docs/01_DESIGN_BLUEPRINT.md) for the full plan.
 
 ## How resume parsing works
 
@@ -13,6 +13,12 @@ Runs entirely on **localhost**: React + Vite frontend, FastAPI backend, and Supa
 3. A **deterministic grounding check** removes any skill, project technology or contact detail that does not appear in the resume text, and lists what it removed as warnings.
 4. If Gemini is unavailable, a heuristic parser (regex + a skill catalog) produces a partial result; the student can re-run extraction later.
 5. Skills are normalized through an alias catalog (`JS` → JavaScript, `k8s` → Kubernetes; "Java" never matches "JavaScript") and stored as **extracted**. Only the student can mark them **verified** or **rejected**, and re-extraction never overrides those decisions.
+
+## How the internship knowledge base works
+
+1. **Sample data**: 20 postings from *fictional* companies, stored with `source='sample'` and shown with a "Sample" badge. Seed them once with `python -m app.seed` (idempotent).
+2. **Add from a job description**: paste the text; Gemini extracts the fields and required/preferred skills, a grounding check drops anything not in the pasted text, and you review and edit the draft before anything is saved. Postings you add are private to you.
+3. **Semantic search**: each posting is chunked and embedded locally with `fastembed` (`BAAI/bge-small-en-v1.5`, 384-dim; the ~130 MB model downloads on first use) into pgvector, searched by cosine similarity (HNSW index). Keyword filters (work mode, location, skill, source) combine with it.
 
 ## Prerequisites
 

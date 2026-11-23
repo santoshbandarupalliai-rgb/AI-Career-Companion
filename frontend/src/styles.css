@@ -177,3 +177,18 @@ input[aria-invalid="true"] { border-color: var(--danger-text); }
 .kv dt { color: var(--muted); text-transform: capitalize; font-size: 0.85rem; }
 .kv dd { margin: 0; word-break: break-word; }
 .raw { white-space: pre-wrap; font-size: 0.8rem; max-height: 400px; overflow: auto; background: var(--bg); padding: 0.75rem; border-radius: 8px; }
+
+/* ---------- Phase 3: internship knowledge base ---------- */
+:root { --sample-bg: #fff4dc; --sample-text: #8a5a00; }
+@media (prefers-color-scheme: dark) { :root { --sample-bg: #3a2f14; --sample-text: #f0c978; } }
+.badge.sample { background: var(--sample-bg); color: var(--sample-text); }
+.grow { flex: 1; min-width: 200px; }
+label.inline { flex-direction: row; align-items: center; gap: 0.4rem; font-weight: 400; }
+label.inline input { width: auto; }
+.internship-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1rem; align-items: start; }
+.internship h2 { font-size: 1.05rem; }
+.chip.static { padding: 0.2rem 0.7rem; font-size: 0.82rem; }
+.chip.preferred { background: transparent; border: 1px dashed var(--border); color: var(--muted); }
+.chip-btn { border: none; background: transparent; color: inherit; font: inherit; cursor: pointer; padding: 0; }
+.pre { white-space: pre-wrap; }
+.snippet { margin: 0; font-style: italic; }

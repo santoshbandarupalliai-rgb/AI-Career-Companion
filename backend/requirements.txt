@@ -24,3 +24,6 @@ python-docx==1.2.0
 
 # LLM (Google Gemini)
 google-genai==3.6.1
+
+# Embeddings (Phase 3)
+fastembed==0.9.1
