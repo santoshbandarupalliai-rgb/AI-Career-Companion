@@ -97,7 +97,7 @@ The current release includes: sign-up and sign-in, the student profile, resume u
 
 **How it works:** Each question goes through a fixed pipeline: load this session's previous messages, rewrite a follow-up such as "why did we use it?" into a standalone question using the conversation, search this document by meaning for the five most relevant sections, and then ask the AI to answer using only those sections. The answer lists the sections it used as citations. If nothing in the document is relevant enough, the assistant says the information is not in the product documentation instead of guessing. Every message is saved with the student's ID and the session ID, and history is always fetched using both, so one student never sees another student's chats and one session never leaks into another. Long conversations are summarised so that earlier context is not lost.
 
-**How to use:** Open "Product Assistant", start a new chat, and ask a question. Sessions appear in a list on the left, and a student can switch between them or delete them. The thumbs-up and thumbs-down buttons on an answer record feedback.
+**How to use:** Choose "Product Assistant" in the header, start a new chat, and ask a question. Sessions appear in a list on the left, and a student can switch between them or delete them. The thumbs-up and thumbs-down buttons on an answer record feedback.
 
 **Output:** An answer with citations to document sections, stored in the chat history.
 
@@ -157,7 +157,7 @@ The current release includes: sign-up and sign-in, the student profile, resume u
 
 **How it works:** It is a LangGraph agent. For each message it decides, one step at a time, whether to call a tool or to answer, with at most four tool calls per message. Its tools are: read the profile and verified skills, search internships, rank the best matches, score one match in detail, analyse the skill gap for an internship or role, create interview practice questions (saved on the Interview Prep page), list applications, and propose a tracker change. The tools use the same rules as the rest of the product, so scores and gaps are identical to the Job Matching and Skill Gap pages, and only verified skills count. Every fact in an answer must come from a tool result; if a tool finds nothing, the assistant says so. The AI never sees database IDs: items it has seen get short codes that the server checks, so it cannot act on an item it was not shown. The assistant never changes data on its own. Adding an internship to the tracker or changing an application's status appears as a proposal under the answer with "Confirm" and "Cancel" buttons; nothing changes until the student confirms, and each proposal can be used once. Chats are saved per student with titles, memory of earlier messages (older messages are summarised), and 👍/👎 feedback. Each answer lists the tools it used. It is separate from the Product Assistant: it does not read this document, and the Product Assistant cannot see profile data.
 
-**How to use:** Open "Career Assistant", choose "New chat" or an example such as "Find internships that fit me and add the top one to my tracker", and read the answer. If it proposes a change, check it and choose "Confirm" or "Cancel". Expand "Used N tools" to see what it looked up. For questions about how the app works, use the Product Assistant.
+**How to use:** Choose the green "Career Assistant" button at the bottom right of any page, then "New chat" or an example such as "Find internships that fit me and add the top one to my tracker", and read the answer. If it proposes a change, check it and choose "Confirm" or "Cancel". Expand "Used N tools" to see what it looked up. For questions about how the app works, use the Product Assistant.
 
 **Output:** Answers grounded in the student's own data, tool traces, and confirmable tracker changes.
 
@@ -187,13 +187,13 @@ The current release includes: sign-up and sign-in, the student profile, resume u
 10. Open "Resume & Cover Letter" to tailor a resume or write a cover letter for an internship, review it, and save it.
 11. Open "Interview Prep" to practise questions for a role and get feedback on your answers.
 12. Use "Track" on internships you are interested in, and keep their status up to date on "Applications".
-13. Open "Career Assistant" to ask for help with your own search, for example which internships fit you and what to learn next.
-14. Open "Product Assistant" any time to ask how something works.
+13. Use the floating "Career Assistant" button (bottom right) to ask for help with your own search, for example which internships fit you and what to learn next.
+14. Choose "Product Assistant" in the header any time to ask how something works.
 15. Return to the "Dashboard" whenever you want to see your progress, upcoming deadlines and the suggested next step.
 
 ### 3.2 Asking the Product Assistant
 
-1. Open "Product Assistant" and choose "New chat".
+1. Choose "Product Assistant" in the header and then "New chat".
 2. Type a question, for example "How does resume parsing work?".
 3. Read the answer and the cited sections beneath it.
 4. Ask a follow-up such as "Why was that approach used?". The assistant uses the conversation to understand "that".
@@ -219,13 +219,13 @@ The current release includes: sign-up and sign-in, the student profile, resume u
 
 **What is the difference between the Career Assistant and the Product Assistant?** The Career Assistant works with your own profile, matches and applications. The Product Assistant answers questions about how the app works, only from this document, and cannot see your data.
 
-**What happens if the AI service is down?** Resume parsing falls back to a basic parser, job-description extraction fills in recognised skills only, and the Product Assistant and Career Assistant report an error rather than guessing; nothing is saved from a failed answer.
+**What happens if the AI service is down?** If a second AI provider (Groq) is configured, the request is retried there automatically. If every provider fails, resume parsing falls back to a basic parser, job-description extraction fills in recognised skills only, and the Product Assistant and Career Assistant report an error rather than guessing; nothing is saved from a failed answer.
 
 ## 4. Architecture
 
 ### 4.1 Overview
 
-The product is a single-page web app talking to a REST API, which talks to a PostgreSQL database and to the Gemini AI service. Everything runs on the student's own computer except the database (Supabase) and Gemini.
+The product is a single-page web app talking to a REST API, which talks to a PostgreSQL database and to the Gemini AI service, with an optional Groq service used as a fallback. Everything runs on the student's own computer except the database (Supabase) and the AI services.
 
 ```
 Browser (React + Vite, localhost:5173)
@@ -234,7 +234,7 @@ Browser (React + Vite, localhost:5173)
 FastAPI backend (localhost:8000)
    |-- routers: auth, profile, resumes, skills, internships, matching, skill-gap, tailoring, interview, applications, chat/product, chat/career
    |-- services: parsing, skills, internships, match engine (pure rules), assistants
-   |-- app/llm/client.py  --------> Google Gemini (structured JSON + text)
+   |-- app/llm/client.py  --------> Google Gemini (structured JSON + text), then Groq as fallback
    |-- app/rag/*  (local fastembed model: embeddings, chunker, retriever)
    v
 Supabase PostgreSQL + pgvector (session pooler)
@@ -242,7 +242,7 @@ Supabase PostgreSQL + pgvector (session pooler)
 
 ### 4.2 Backend layers
 
-Routers handle HTTP and validation. Services hold the logic. The match and skill-gap calculations are pure functions with no database or AI access, which makes them deterministic and easy to test; the AI is used only for the optional explanation and learning plan. All AI calls go through one adapter module, so the provider can be swapped in one place. The retrieval code (chunker, embeddings, retriever) is shared by the internship search and the Product Assistant, using different corpora (`internship` and `product`).
+Routers handle HTTP and validation. Services hold the logic. The match and skill-gap calculations are pure functions with no database or AI access, which makes them deterministic and easy to test; the AI is used only for the optional explanation and learning plan. All AI calls go through one adapter module, so the provider can be swapped in one place. The adapter tries the providers in a configured order (Gemini first, then Groq if a Groq key is set) and moves to the next one when a provider is rate-limited, unavailable or returns an answer in the wrong format. The retrieval code (chunker, embeddings, retriever) is shared by the internship search and the Product Assistant, using different corpora (`internship` and `product`).
 
 ### 4.3 RAG pipeline
 
@@ -283,6 +283,7 @@ AI-written resume and cover-letter text passes through a deterministic fact guar
 | pgvector | Vector database | Keeps vectors in the same database as everything else, giving one datastore, transactions and joins, instead of running a separate vector store. It satisfies the requirement for a vector database. |
 | fastembed with BAAI/bge-small-en-v1.5 | Embeddings | Small (about 130 MB), fast, runs locally on CPU with no API cost or rate limits, and gives good English retrieval quality at 384 dimensions. |
 | Google Gemini 2.5 Flash | Language model | Fast, inexpensive, supports JSON-schema output for reliable extraction, and has a free tier. All calls go through one adapter. |
+| Groq (`openai/gpt-oss-120b`) | Fallback language model | Optional. Used only when Gemini is rate-limited or unavailable, so a free-tier limit does not stop the app. Its answers are checked against the same schemas. |
 | LangGraph | Assistant workflow | Makes the assistant pipeline an explicit graph of small steps that are easy to test and extend; the Career Assistant uses a tool loop (agent step, tool, back to the agent) that LangGraph expresses directly. |
 | PyMuPDF and python-docx | Resume text extraction | Reliable PDF text extraction (including multiple columns) and DOCX reading, with no external services. |
 | bcrypt and PyJWT | Authentication | Standard, well-reviewed password hashing and signed tokens. |

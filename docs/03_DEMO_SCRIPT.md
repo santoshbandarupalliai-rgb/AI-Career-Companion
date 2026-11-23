@@ -2,7 +2,7 @@
 
 A step-by-step walk through all nine modules, the dashboard and both assistants. About 25 minutes with the Gemini API available, about 10 minutes without it.
 
-**Legend:** 🤖 = needs the Gemini API (can fail on the free tier with a rate-limit message; the app then shows the error and stores nothing). Everything else works without Gemini.
+**Legend:** 🤖 = needs the Gemini API (can fail on the free tier with a rate-limit message; the app then shows the error and stores nothing). Everything else works without Gemini. If a Groq key is set, the app retries a failed Gemini call on Groq automatically (see `README.md`).
 
 ## 0. Prepare
 
@@ -84,7 +84,7 @@ A step-by-step walk through all nine modules, the dashboard and both assistants.
 
 ## 10. Module 9: Career Assistant
 
-1. Click **Career Assistant** → **New chat**.
+1. Click the green **Career Assistant** button at the bottom right → **New chat**.
 2. 🤖 Send: `Find internships that fit me and add the top one to my tracker`.
    - It names internships (never codes like I1), shows a "Used N tools" trace, and **proposes** the tracker change with **Confirm** / **Cancel**.
    - *Say:* nothing has changed yet. Click **Confirm** and check **Applications**; the confirmed action cannot be used twice.
@@ -93,7 +93,7 @@ A step-by-step walk through all nine modules, the dashboard and both assistants.
 
 ## 11. Product Assistant (separate assistant)
 
-1. Click **Product Assistant** → **New chat**.
+1. Click **Product Assistant** in the header → **New chat**.
 2. 🤖 Ask `What is the difference between extracted and verified skills?`: the answer cites sections of the Product Knowledge Document.
 3. 🤖 Follow up: `Why did we use it?` after asking `Why was pgvector chosen?` to show the pronoun being resolved from history.
 4. 🤖 Ask something off-topic, such as `What is the weather today?`: it says the documentation does not cover it instead of guessing.

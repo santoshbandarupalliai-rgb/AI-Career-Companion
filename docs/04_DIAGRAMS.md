@@ -8,7 +8,7 @@ Source files are named in each section so they can be checked.
 ```mermaid
 flowchart TB
     subgraph Browser["Browser (React 18 + Vite)"]
-        UI["Pages: Dashboard, Profile, Resume, Internships,<br/>Matching, Skill Gap, Customize, Interview,<br/>Applications, Career Assistant, Product Assistant"]
+        UI["Header (Product Assistant, user menu), side menu,<br/>floating Career Assistant button.<br/>Pages: Dashboard, Profile, Resume, Internships,<br/>Matching, Skill Gap, Customize, Interview,<br/>Applications, Career Assistant, Product Assistant"]
         AX["api/client.js<br/>axios + single-flight token refresh"]
         UI --> AX
     end
@@ -18,7 +18,7 @@ flowchart TB
         R["routers/*<br/>HTTP + validation + JWT (deps.get_current_user)"]
         S["services/*<br/>business logic, every query filtered by user_id"]
         PURE["match_engine.py, fact_guard.py<br/>pure functions: no DB, no LLM"]
-        LLMA["llm/client.py<br/>the only Gemini adapter"]
+        LLMA["llm/client.py<br/>the only LLM adapter<br/>(providers tried in LLM_PROVIDERS order)"]
         RAG["rag/*<br/>chunker, embeddings, retriever"]
         MW --> R --> S
         S --> PURE
@@ -27,7 +27,8 @@ flowchart TB
     end
 
     subgraph Ext["External / local"]
-        GEM["Google Gemini<br/>gemini-2.5-flash"]
+        GEM["Google Gemini<br/>gemini-2.5-flash (primary)"]
+        GRQ["Groq (optional fallback)<br/>openai/gpt-oss-120b"]
         EMB["fastembed (local)<br/>BAAI/bge-small-en-v1.5, 384 dims"]
         DB[("Supabase PostgreSQL<br/>session pooler, pgvector 0.8, RLS on")]
         FS["backend/uploads/&lt;user_id&gt;/<br/>resume files"]
@@ -35,13 +36,14 @@ flowchart TB
 
     AX -- "/api (Vite proxy to 127.0.0.1:8000)" --> MW
     LLMA --> GEM
+    LLMA -. "on rate limit, outage<br/>or bad output" .-> GRQ
     RAG --> EMB
     S --> DB
     RAG --> DB
     S --> FS
 ```
 
-Notes: LLM and embedding calls happen outside database transactions (the service rolls back first and persists afterwards). Only verified skills reach the matching and gap code.
+Notes: LLM and embedding calls happen outside database transactions (the service rolls back first and persists afterwards). Only verified skills reach the matching and gap code. If Gemini fails, the same prompt goes to Groq (when `GROQ_API_KEY` is set) and the answer is validated against the same schema; if every provider fails, the user sees an error and nothing is stored.
 
 ## 2. RAG pipeline
 
