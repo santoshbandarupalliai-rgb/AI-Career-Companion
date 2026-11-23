@@ -86,6 +86,7 @@ Fill in `backend\.env`:
 | `DATABASE_URL` | Supabase → **Connect** → URI → **Session pooler**. Change the prefix to `postgresql+psycopg://` and insert your DB password (URL-encode `@ # /`). Don't use "Direct connection": it is IPv6-only. |
 | `SECRET_KEY` | `python -c "import secrets; print(secrets.token_hex(32))"` |
 | `GEMINI_API_KEY` | Google AI Studio → Get API key |
+| `GROQ_API_KEY` (optional) | console.groq.com → API Keys. Fallback when Gemini is rate-limited or down. `GROQ_MODEL` (default `openai/gpt-oss-120b`) and `LLM_PROVIDERS` (default `gemini,groq`, the order tried) are optional |
 
 `.env` is git-ignored. Never commit it.
 
@@ -142,7 +143,7 @@ backend/
     db.py              SQLAlchemy engine/session (Supabase session pooler)
     security.py        bcrypt + JWT (access/refresh)
     models/  schemas/  services/  routers/
-    llm/               the only Gemini adapter
+    llm/               the only LLM adapter (Gemini, with Groq as fallback)
     rag/               chunker, local embeddings, pgvector retriever
     seed/              fictional sample internships
   alembic/             database migrations
@@ -167,6 +168,7 @@ docs/                  design blueprint, product knowledge document (+ exports),
 
 ## Known limitations
 
+- **LLM fallback and privacy**: if `GROQ_API_KEY` is set, a request that Gemini rejects (rate limit, outage, bad output) is retried on Groq, which then receives the same prompt, including resume text. Leave the key empty to keep all text with Gemini.
 - **Gemini free tier**: the LLM-backed features (resume parsing, JD extraction, explanations, learning plans, tailoring, interview questions and scoring, both assistants) can answer with a rate-limit or "high demand" message. The app then shows the error and stores nothing; resume parsing falls back to a heuristic parser. Deterministic features (matching, skill gap, tracker, dashboard) do not need it.
 - **Live-model output not yet reviewed for every prompt**: tests use fakes. A pass with real Gemini output for the tailoring, interview and Career Assistant prompts is still to be done.
 - Sample internships are fictional demo data; there is no live job feed.

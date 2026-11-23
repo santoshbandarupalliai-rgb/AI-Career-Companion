@@ -23,6 +23,11 @@ class Settings(BaseSettings):
     # LLM (used from Phase 2 on; optional for auth-only runs).
     gemini_api_key: str = ""
     gemini_model: str = "gemini-2.5-flash"
+    # Optional fallback provider (OpenAI-compatible REST API).
+    groq_api_key: str = ""
+    groq_model: str = "openai/gpt-oss-120b"
+    # Providers tried in this order; ones without a key are skipped.
+    llm_providers: str = "gemini,groq"
 
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = Field(default=30, ge=1, le=24 * 60)
