@@ -24,7 +24,40 @@ It is built for students and recent graduates looking for internships, especiall
 
 The current release includes: sign-up and sign-in, the student profile, resume upload and parsing, skill review, the internship knowledge base with semantic search, job matching, skill gap analysis, resume and cover-letter tailoring, interview preparation, the application tracker, the Career Assistant and the Product Assistant, plus a dashboard with your progress and a suggested next step. All nine modules are available.
 
+### 1.5 How the product works, step by step
+
+In short, the product turns a student's resume into verified skills and then uses those skills to find, prepare for and track internship applications. The process, from the student's point of view:
+
+1. **Create an account and fill in the profile** (college, degree, branch, graduation year, CGPA, target role).
+2. **Upload a resume** (PDF or DOCX). The product reads it and extracts the contact details, education, experience, projects and skills.
+3. **Review and verify the skills.** Skills found in the resume are only suggestions until the student verifies them. Only verified skills are used from here on.
+4. **Browse or search internships** in the internship knowledge base, or add a posting by pasting a job description.
+5. **See how well each internship matches.** Job matching gives a 0-100 score with a breakdown, and skill gap analysis shows which skills to learn next.
+6. **Generate application documents.** For a chosen internship the product drafts a tailored resume or a cover letter from the student's real resume. The student reviews, edits and saves it.
+7. **Practise interviews.** Interview preparation creates questions for a role or an internship and scores the student's answers.
+8. **Track applications.** The application tracker records each application's status, deadlines and notes.
+9. **Ask for help.** The Career Assistant helps with the student's own search using their data, and the Product Assistant explains how the product works. The dashboard shows progress and the next suggested step.
+
 ## 2. Features
+
+### 2.0 All features at a glance (Available)
+
+The product has fourteen features, all available in the current release: account and sign-in, the student profile, resume upload and parsing, skill review, the internship knowledge base, adding an internship from a job description, job matching, skill gap analysis, resume and cover-letter tailoring, interview preparation, the application tracker, the Career Assistant, the Product Assistant and the dashboard. What each one does:
+
+- **Account and sign-in:** register and sign in securely; each student only sees their own data.
+- **Student profile:** academic details and target role, empty until the student fills them in.
+- **Resume upload and parsing:** upload a PDF or DOCX resume (up to 5 MB) and have it structured automatically.
+- **Skill review:** confirm, reject or add skills; only verified skills count.
+- **Internship knowledge base:** browse and filter internships and search them by meaning (semantic search).
+- **Add an internship from a job description:** paste a posting and review the extracted details before saving.
+- **Job matching:** an explainable 0-100 compatibility score for each internship.
+- **Skill gap analysis:** the skills missing for a role or an internship, ranked, with an optional learning plan.
+- **Resume and cover-letter tailoring:** a resume or cover letter written for one chosen internship from the student's real resume, checked for invented facts.
+- **Interview preparation:** practice questions for a role or internship, with scored feedback on answers.
+- **Application tracker:** statuses, deadlines, notes and a history of changes for each application.
+- **Career Assistant:** a chat assistant that uses the student's own profile, matches and applications, and only changes data after the student confirms.
+- **Product Assistant:** a chat assistant that answers questions about the product from this document, remembers the conversation and cites its sources.
+- **Dashboard:** profile completeness, resume status, skills, applications, upcoming deadlines and a suggested next step.
 
 ### 2.1 Account and sign-in (Available)
 
