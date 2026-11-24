@@ -8,6 +8,8 @@ export function formatDate(iso) {
   return new Date(iso).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
 }
 
+export const resumeName = (r) => r.label || r.original_filename;
+
 export const STATUS_LABEL = {
   complete: "Parsed",
   partial: "Partially parsed",
@@ -83,6 +85,12 @@ export default function ResumeManager({ onActiveExtraction }) {
     }
   }
 
+  async function rename(r) {
+    const next = window.prompt("Name this resume (for example: Backend resume). Leave empty to use the file name.", r.label || "");
+    if (next === null) return;
+    act(() => api.patch(`/resumes/${r.id}`, { label: next.trim() }), next.trim() ? "Resume renamed." : "Name removed.");
+  }
+
   async function download(r) {
     try {
       const res = await api.get(`/resumes/${r.id}/file`, { responseType: "blob" });
@@ -100,6 +108,7 @@ export default function ResumeManager({ onActiveExtraction }) {
   return (
     <section className="card stack">
       <h2>Resumes</h2>
+      <p className="muted small">Keep up to 10 resumes (for example one per role). The active one is the default for matching, tailoring and interview practice; you can choose another on those pages.</p>
       <div className="dropzone">
         <p className="muted small">PDF or DOCX, up to 5 MB. Text-based files only (not scans).</p>
         <input ref={inputRef} type="file" accept=".pdf,.docx" onChange={onFile} hidden />
@@ -122,11 +131,11 @@ export default function ResumeManager({ onActiveExtraction }) {
           {resumes.map((r) => (
             <li key={r.id} className={r.is_active ? "active" : ""}>
               <div className="resume-name" title={r.original_filename}>
-                {r.original_filename}
+                {resumeName(r)}
                 {r.is_active && <span className="badge">Active</span>}
               </div>
               <div className="muted small">
-                {formatDate(r.uploaded_at)} · {(r.size_bytes / 1024).toFixed(0)} KB · {STATUS_LABEL[r.extraction_status]}
+                {r.label ? `${r.original_filename} · ` : ""}{formatDate(r.uploaded_at)} · {(r.size_bytes / 1024).toFixed(0)} KB · {STATUS_LABEL[r.extraction_status]}
               </div>
               <div className="actions">
                 {!r.is_active && (
@@ -134,13 +143,16 @@ export default function ResumeManager({ onActiveExtraction }) {
                     Make active
                   </button>
                 )}
+                <button className="btn btn-ghost small" onClick={() => rename(r)}>
+                  Rename
+                </button>
                 <button className="btn btn-ghost small" onClick={() => download(r)}>
                   Download
                 </button>
                 <button
                   className="btn btn-ghost small danger"
                   onClick={() => {
-                    if (window.confirm(`Delete "${r.original_filename}"? Unconfirmed skills found only in it are removed too.`))
+                    if (window.confirm(`Delete "${resumeName(r)}"? Unconfirmed skills found only in it are removed too.`))
                       act(() => api.delete(`/resumes/${r.id}`), "Resume deleted.");
                   }}
                 >

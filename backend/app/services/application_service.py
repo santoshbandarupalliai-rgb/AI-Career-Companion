@@ -154,5 +154,5 @@ def describe(db: Session, apps: list[Application]) -> dict[uuid.UUID, tuple[str 
     i_ids = {a.internship_id for a in apps if a.internship_id}
     r_ids = {a.resume_id for a in apps if a.resume_id}
     sources = {k: v for k, v in db.execute(select(Internship.id, Internship.source).where(Internship.id.in_(i_ids)))} if i_ids else {}
-    names = {k: v for k, v in db.execute(select(Resume.id, Resume.original_filename).where(Resume.id.in_(r_ids)))} if r_ids else {}
+    names = {k: (lbl or fn) for k, fn, lbl in db.execute(select(Resume.id, Resume.original_filename, Resume.label).where(Resume.id.in_(r_ids)))} if r_ids else {}
     return {a.id: (sources.get(a.internship_id), names.get(a.resume_id)) for a in apps}

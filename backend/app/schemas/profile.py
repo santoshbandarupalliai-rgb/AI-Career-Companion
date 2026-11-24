@@ -78,12 +78,17 @@ class ResumeOut(BaseModel):
 
     id: uuid.UUID
     original_filename: str
+    label: str | None = None
     content_type: str
     size_bytes: int
     page_count: int | None
     is_active: bool
     extraction_status: str
     uploaded_at: datetime
+
+
+class ResumeLabelIn(BaseModel):
+    label: str | None = Field(default=None, max_length=100)
 
 
 class ExtractionOut(BaseModel):

@@ -8,7 +8,7 @@ from app.db import get_db
 from app.deps import get_current_user
 from app.llm import LLMError
 from app.models import InterviewItem, InterviewSession, User
-from app.schemas.interview import AnswerIn, ItemOut, SessionCreate, SessionDetail, SessionSummary
+from app.schemas.interview import AnswerIn, ItemOut, ReportOut, SessionCreate, SessionDetail, SessionSummary
 from app.services import interview_service
 from app.services.interview_service import InterviewError, NotFound
 from app.services.internship_service import InternshipError
@@ -41,7 +41,7 @@ async def create_session(payload: SessionCreate, user: User = Depends(get_curren
     """Generate practice questions for a role and/or internship. Nothing is created if the AI cannot produce questions."""
     try:
         s = await run_in_threadpool(
-            interview_service.create_session, db, user.id, role=payload.role, internship_id=payload.internship_id, count=payload.count
+            interview_service.create_session, db, user.id, role=payload.role, internship_id=payload.internship_id, count=payload.count, resume_id=payload.resume_id
         )
     except InternshipError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
@@ -59,6 +59,15 @@ def get_session(session_id: uuid.UUID, user: User = Depends(get_current_user), d
     except NotFound as exc:
         raise HTTPException(status_code=404, detail=str(exc))
     return SessionDetail(session=_summary(s), items=[_item(i) for i in s.items])
+
+
+@router.get("/sessions/{session_id}/report", response_model=ReportOut)
+def report(session_id: uuid.UUID, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Diagnostic summary of a practice session (level, scores per category, recurring strengths and improvements)."""
+    try:
+        return interview_service.build_report(db, user.id, session_id)
+    except NotFound as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
 
 
 @router.delete("/sessions/{session_id}", status_code=status.HTTP_204_NO_CONTENT)

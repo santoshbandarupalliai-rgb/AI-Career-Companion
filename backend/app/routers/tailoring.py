@@ -29,7 +29,7 @@ async def generate(payload: GenerateRequest, user: User = Depends(get_current_us
     """Generate a DRAFT tailored to an internship. Nothing is saved; flags list anything the fact guard could not support."""
     try:
         # The LLM call blocks, so keep it off the event loop.
-        return await run_in_threadpool(tailoring_service.generate, db, user, payload.internship_id, payload.kind)
+        return await run_in_threadpool(tailoring_service.generate, db, user, payload.internship_id, payload.kind, payload.resume_id)
     except InternshipError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
     except TailoringError as exc:

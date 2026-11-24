@@ -62,6 +62,17 @@ export function AuthProvider({ children }) {
     return data.user;
   }, []);
 
+  // Re-read the signed-in user (for example after the email was verified in another tab).
+  const refreshUser = useCallback(async () => {
+    try {
+      const { data } = await api.get("/auth/me");
+      setUser(data);
+      return data;
+    } catch {
+      return null;
+    }
+  }, []);
+
   const logout = useCallback(async () => {
     const refresh_token = tokenStore.refresh;
     tokenStore.clear();
@@ -76,8 +87,8 @@ export function AuthProvider({ children }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, loading, bootError, retry, login, register, logout }),
-    [user, loading, bootError, retry, login, register, logout]
+    () => ({ user, loading, bootError, retry, login, register, logout, refreshUser }),
+    [user, loading, bootError, retry, login, register, logout, refreshUser]
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

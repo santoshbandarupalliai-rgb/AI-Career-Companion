@@ -54,6 +54,7 @@ class Resume(Base):
         ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False
     )
     original_filename: Mapped[str] = mapped_column(String(255), nullable=False)
+    label: Mapped[str | None] = mapped_column(String(100))  # optional friendly name, e.g. "Backend resume"
     stored_filename: Mapped[str] = mapped_column(String(255), nullable=False)
     content_type: Mapped[str] = mapped_column(String(100), nullable=False)
     size_bytes: Mapped[int] = mapped_column(Integer, nullable=False)

@@ -15,6 +15,7 @@ import CustomizePage from "./pages/CustomizePage.jsx";
 import InterviewPage from "./pages/InterviewPage.jsx";
 import ApplicationsPage from "./pages/ApplicationsPage.jsx";
 import CareerAssistantPage from "./pages/CareerAssistantPage.jsx";
+import VerifyEmailPage from "./pages/VerifyEmailPage.jsx";
 import { MODULES } from "./modules.js";
 
 // Modules that are built; the rest show a "coming in phase N" page.
@@ -62,6 +63,7 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<GuestOnly><LoginPage /></GuestOnly>} />
       <Route path="/register" element={<GuestOnly><RegisterPage /></GuestOnly>} />
+      <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route
         element={
           <RequireAuth>

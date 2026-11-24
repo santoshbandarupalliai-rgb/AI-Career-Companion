@@ -148,6 +148,24 @@ def reextract(db: Session, user_id: uuid.UUID, resume_id: uuid.UUID) -> Resume:
     return resume
 
 
+def display_name(resume: Resume) -> str:
+    return resume.label or resume.original_filename
+
+
+def rename(db: Session, user_id: uuid.UUID, resume_id: uuid.UUID, label: str | None) -> Resume:
+    """Give a resume a friendly name (empty clears it)."""
+    resume = get_owned(db, user_id, resume_id)
+    resume.label = (label or "").strip()[:100] or None
+    db.commit()
+    db.refresh(resume)
+    return resume
+
+
+def resolve(db: Session, user_id: uuid.UUID, resume_id: uuid.UUID | None) -> Resume | None:
+    """The resume a feature should use: the chosen one (must be the user's own) or the active one."""
+    return get_owned(db, user_id, resume_id) if resume_id else active_resume(db, user_id)
+
+
 def set_active(db: Session, user_id: uuid.UUID, resume_id: uuid.UUID) -> Resume:
     resume = get_owned(db, user_id, resume_id)
     db.execute(update(Resume).where(Resume.user_id == user_id).values(is_active=False))

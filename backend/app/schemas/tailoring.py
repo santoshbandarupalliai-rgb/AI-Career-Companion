@@ -91,6 +91,7 @@ class CoverLetterContent(BaseModel):
 class GenerateRequest(BaseModel):
     internship_id: uuid.UUID
     kind: Literal["resume", "cover_letter"]
+    resume_id: uuid.UUID | None = None  # which of the student's resumes to use; defaults to the active one
 
 
 class Draft(BaseModel):

@@ -203,7 +203,7 @@ def test_llm_failure_stores_nothing(client, auth, llm, db_session_factory):
     h = auth()
     sid = new_chat(client, h)
     llm.fail = True
-    r = say(client, h, sid, "hello")
+    r = say(client, h, sid, "which internships fit me?")
     assert r.status_code == 503 and "rate-limited" in r.json()["detail"]
     assert count(db_session_factory, ChatMessage) == 0
 
@@ -231,7 +231,7 @@ def test_codes_persist_across_turns_and_status_change(client, auth, seeded, llm,
 
     # A third turn's history shows the action outcome to the model.
     llm.script = [respond("Good luck!")]
-    say(client, h, sid, "thanks")
+    say(client, h, sid, "any advice for the interview round?")
     assert "Proposed action:" in llm.prompts[-1] and "- done" in llm.prompts[-1]
 
 
@@ -303,7 +303,7 @@ def test_feedback_on_career_message(client, auth, llm):
     h = auth()
     sid = new_chat(client, h)
     llm.script = [respond("Hi!")]
-    mid = say(client, h, sid, "hello").json()["assistant_message"]["id"]
+    mid = say(client, h, sid, "show my applications").json()["assistant_message"]["id"]
     assert client.put(f"{BASE}/messages/{mid}/feedback", headers=h, json={"rating": 1}).json()["rating"] == 1
     # Not reachable through the Product Assistant router.
     assert client.put(f"/api/chat/product/messages/{mid}/feedback", headers=h, json={"rating": 1}).status_code == 404

@@ -15,6 +15,7 @@ import httpx
 from pydantic import BaseModel, ValidationError
 
 from app.config import get_settings
+from app.services import pii
 
 log = logging.getLogger(__name__)
 
@@ -145,8 +146,22 @@ def _active_providers() -> list[tuple[str, Callable]]:
     return active
 
 
+def _mask_prompt(prompt: str, system: str | None) -> tuple[str, str | None]:
+    """Mask sensitive identifiers (national IDs, card and bank numbers...) before anything leaves the server."""
+    if not get_settings().pii_redaction:
+        return prompt, system
+    prompt, counts = pii.redact_sensitive(prompt)
+    if system:
+        system, more = pii.redact_sensitive(system)
+        counts = {k: counts.get(k, 0) + more.get(k, 0) for k in {*counts, *more}}
+    if counts:
+        log.info("pii redaction masked sensitive identifiers before the LLM call: %s", counts)
+    return prompt, system
+
+
 def _generate(prompt: str, schema: type[T] | None, system: str | None, temperature: float, thinking: bool) -> T | str:
     providers = _active_providers()
+    prompt, system = _mask_prompt(prompt, system)
     last: LLMError | None = None
     for i, (name, fn) in enumerate(providers):
         # With another provider waiting, don't spend time retrying a rate limit here.

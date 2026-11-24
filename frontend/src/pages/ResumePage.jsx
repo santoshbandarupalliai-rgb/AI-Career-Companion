@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, errorMessage } from "../api/client.js";
 import SkillReview from "../components/SkillReview.jsx";
-import { STATUS_LABEL, formatDate } from "../components/ResumeManager.jsx";
+import { STATUS_LABEL, formatDate, resumeName } from "../components/ResumeManager.jsx";
 
 function Section({ title, children, empty }) {
   return (
@@ -92,7 +92,7 @@ export default function ResumePage() {
           <select value={selected || ""} onChange={(e) => setSelected(e.target.value)} aria-label="Choose resume">
             {resumes.map((r) => (
               <option key={r.id} value={r.id}>
-                {r.original_filename}
+                {resumeName(r)}
                 {r.is_active ? " (active)" : ""}
               </option>
             ))}

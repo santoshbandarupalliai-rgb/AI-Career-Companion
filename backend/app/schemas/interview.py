@@ -36,6 +36,7 @@ class EvaluationLLM(BaseModel):
 class SessionCreate(BaseModel):
     role: str | None = Field(default=None, min_length=2, max_length=150)
     internship_id: uuid.UUID | None = None
+    resume_id: uuid.UUID | None = None  # which resume to ask about; defaults to the active one
     count: int = Field(default=8, ge=3, le=10)
 
 
@@ -85,3 +86,25 @@ class AnswerIn(BaseModel):
         if len(v) < 10:
             raise ValueError("Write at least a sentence before submitting")
         return v
+
+
+class CategoryResult(BaseModel):
+    category: Category
+    answered: int
+    average: float
+
+
+class ReportOut(BaseModel):
+    """Diagnostic summary of a practice session, computed from the saved scores (no AI call)."""
+
+    total: int
+    answered: int
+    unanswered: int
+    average_score: float | None
+    level: str
+    level_note: str
+    by_category: list[CategoryResult]
+    strongest: Category | None
+    weakest: Category | None
+    top_strengths: list[str]
+    top_improvements: list[str]

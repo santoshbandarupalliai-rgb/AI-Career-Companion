@@ -98,12 +98,15 @@ def _flatten(value) -> list[str]:
     return []
 
 
-def load_source(db: Session, user: User) -> tuple[Source, SourceData]:
+def load_source(db: Session, user: User, resume_id: uuid.UUID | None = None) -> tuple[Source, SourceData]:
     groups = skill_service.list_skills(db, user.id)
     verified = {r.skill.canonical: r.skill.name for r in groups["verified"]}
     rejected = {r.skill.canonical for r in groups["rejected"]}
     profile = db.scalar(select(StudentProfile).where(StudentProfile.user_id == user.id))
-    resume = resume_service.active_resume(db, user.id)
+    try:
+        resume = resume_service.resolve(db, user.id, resume_id)
+    except resume_service.ResumeNotFound:
+        raise TailoringError("That resume was not found.")
     data = resume.extraction.data if resume is not None and resume.extraction is not None else {}
 
     snap = ProfileSnap(
@@ -264,9 +267,9 @@ def _assemble_entries(kind: str, llm_entries, sd: SourceData, src: Source, notes
     return entries, flags
 
 
-def generate(db: Session, user: User, internship_id: uuid.UUID, kind: str) -> Draft:
+def generate(db: Session, user: User, internship_id: uuid.UUID, kind: str, resume_id: uuid.UUID | None = None) -> Draft:
     item = internship_service.get_internship(db, user.id, internship_id)  # raises if not visible
-    src, sd = load_source(db, user)
+    src, sd = load_source(db, user, resume_id)
     _require_material(sd)
     prompt = _source_prompt(sd, item)
     posting = _posting_text(item)

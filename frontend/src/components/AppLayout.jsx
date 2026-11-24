@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { api, errorMessage } from "../api/client.js";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext.jsx";
 import { MODULES } from "../modules.js";
@@ -13,8 +14,38 @@ function initials(name) {
   return ((parts[0]?.[0] || "?") + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
 }
 
+function VerifyBanner({ user, refreshUser }) {
+  const [state, setState] = useState({ busy: false, msg: "", error: "" });
+  if (user?.email_verified !== false) return null;
+
+  async function resend() {
+    setState({ busy: true, msg: "", error: "" });
+    try {
+      const { data } = await api.post("/auth/resend-verification");
+      setState({ busy: false, msg: data.message, error: "" });
+      if (data.already_verified) refreshUser();
+    } catch (err) {
+      setState({ busy: false, msg: "", error: errorMessage(err, "Could not send the email.") });
+    }
+  }
+
+  return (
+    <div className="verify-banner" role="status">
+      <span>
+        Please verify your email address. We sent a link to <strong>{user.email}</strong>.
+        {state.msg && <span className="verify-note"> {state.msg}</span>}
+        {state.error && <span className="verify-note verify-error"> {state.error}</span>}
+      </span>
+      <span className="row">
+        <button className="btn btn-ghost small" onClick={resend} disabled={state.busy}>{state.busy ? "Sending…" : "Resend email"}</button>
+        <button className="btn btn-ghost small" onClick={refreshUser}>I have verified</button>
+      </span>
+    </div>
+  );
+}
+
 export default function AppLayout() {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const [open, setOpen] = useState(false);
   const location = useLocation();
 
@@ -51,6 +82,7 @@ export default function AppLayout() {
         </div>
       </header>
 
+      <VerifyBanner user={user} refreshUser={refreshUser} />
       <div className="layout">
         <aside className={`sidebar${open ? " open" : ""}`}>
           <nav aria-label="Main">

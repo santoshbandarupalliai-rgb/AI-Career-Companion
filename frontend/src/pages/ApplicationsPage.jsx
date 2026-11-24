@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, errorMessage } from "../api/client.js";
+import { resumeName } from "../components/ResumeManager.jsx";
 
 export const STATUSES = [
   ["saved", "Saved"],
@@ -84,7 +85,7 @@ function AddForm({ resumes, onAdded }) {
               <option value="">Not set</option>
               {resumes.map((r) => (
                 <option key={r.id} value={r.id}>
-                  {r.original_filename}
+                  {resumeName(r)}
                 </option>
               ))}
             </select>
@@ -242,7 +243,7 @@ function ApplicationCard({ app, resumes, onChanged, onDeleted }) {
                   <option value="">Not set</option>
                   {resumes.map((r) => (
                     <option key={r.id} value={r.id}>
-                      {r.original_filename}
+                      {resumeName(r)}
                     </option>
                   ))}
                 </select>

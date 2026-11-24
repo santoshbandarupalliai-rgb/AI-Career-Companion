@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, errorMessage } from "../api/client.js";
+import { resumeName } from "../components/ResumeManager.jsx";
 
 const KIND_LABEL = { resume: "Resume", cover_letter: "Cover letter" };
 
@@ -201,6 +202,8 @@ export default function CustomizePage() {
   const [error, setError] = useState("");
   const [docs, setDocs] = useState(null);
   const [message, setMessage] = useState("");
+  const [resumes, setResumes] = useState([]);
+  const [resumeId, setResumeId] = useState("");
 
   const loadDocs = useCallback(() => {
     api.get("/tailoring/documents").then(({ data }) => setDocs(data)).catch((err) => setError(errorMessage(err)));
@@ -208,6 +211,7 @@ export default function CustomizePage() {
 
   useEffect(() => {
     api.get("/internships", { params: { limit: 100 } }).then(({ data }) => setInternships(data.items)).catch(() => {});
+    api.get("/resumes").then(({ data }) => setResumes(data)).catch(() => {});
     loadDocs();
   }, [loadDocs]);
 
@@ -217,7 +221,7 @@ export default function CustomizePage() {
     setMessage("");
     setDraft(null);
     try {
-      const { data } = await api.post("/tailoring/generate", { internship_id: target, kind }, { timeout: 120000 });
+      const { data } = await api.post("/tailoring/generate", { internship_id: target, kind, resume_id: resumeId || undefined }, { timeout: 120000 });
       setDraft(data);
     } catch (err) {
       setError(errorMessage(err, "Could not generate a draft."));
@@ -271,6 +275,17 @@ export default function CustomizePage() {
             ))}
           </select>
         </label>
+        {resumes.length > 1 && (
+          <label>
+            Resume to use
+            <select value={resumeId} onChange={(e) => { setResumeId(e.target.value); setDraft(null); }} aria-label="Resume to use">
+              <option value="">Active resume</option>
+              {resumes.map((r) => (
+                <option key={r.id} value={r.id}>{resumeName(r)}{r.is_active ? " (active)" : ""}</option>
+              ))}
+            </select>
+          </label>
+        )}
         <div className="row wrap">
           <button className="btn btn-primary" disabled={!target || !!busy} onClick={() => generate("resume")}>
             {busy === "resume" ? "Writing resume…" : "Tailor my resume"}

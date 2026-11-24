@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 from app.deps import get_current_user
 from app.models import User
-from app.schemas.profile import ResumeDetail, ResumeOut
+from app.schemas.profile import ResumeDetail, ResumeLabelIn, ResumeOut
 from app.services import resume_service
 from app.services.document_text import DocumentError
 
@@ -50,6 +50,15 @@ def list_resumes(user: User = Depends(get_current_user), db: Session = Depends(g
 def get_resume(resume_id: uuid.UUID, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     try:
         return _detail(resume_service.get_owned(db, user.id, resume_id))
+    except resume_service.ResumeNotFound:
+        raise _NOT_FOUND
+
+
+@router.patch("/{resume_id}", response_model=ResumeOut)
+def rename_resume(resume_id: uuid.UUID, payload: ResumeLabelIn, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Set or clear a friendly name for a resume (for example \"Backend resume\")."""
+    try:
+        return resume_service.rename(db, user.id, resume_id, payload.label)
     except resume_service.ResumeNotFound:
         raise _NOT_FOUND
 

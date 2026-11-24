@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field
 
 from app.config import get_settings
 from app.llm import LLMError, generate_structured
-from app.services import skills_catalog
+from app.services import pii, skills_catalog
 
 log = logging.getLogger(__name__)
 
@@ -97,6 +97,11 @@ Rules:
 - Keep dates, CGPA and percentages exactly as written.
 - Experience = jobs and internships only. Academic or personal projects go in projects.
 - Do not rewrite or improve bullet points; copy them (you may trim whitespace)."""
+
+
+_PLACEHOLDER_NOTE = (
+    "\n- Contact details appear as placeholders such as [EMAIL_1] or [PHONE_1]. Copy a placeholder into the matching field unchanged."
+)
 
 
 # ---------- grounding (deterministic anti-hallucination check) ----------
@@ -214,9 +219,12 @@ def parse_resume(raw_text: str) -> ParseResult:
     if len(raw_text) > MAX_LLM_CHARS:
         warnings.append("Resume text was very long; only the first part was analysed.")
     try:
+        # The provider sees placeholders instead of the real email and phone; the originals are put back afterwards.
+        masked, contacts = pii.redact_contacts(text)
         data = generate_structured(
-            f"Resume text:\n<<<\n{text}\n>>>", ResumeData, system=SYSTEM_PROMPT, temperature=0.0
+            f"Resume text:\n<<<\n{masked}\n>>>", ResumeData, system=SYSTEM_PROMPT + _PLACEHOLDER_NOTE, temperature=0.0
         )
+        pii.restore(data, contacts)
         warnings += ground(data, raw_text)
         return ParseResult(
             data=data, method="llm", model=get_settings().gemini_model, status="complete", warnings=warnings

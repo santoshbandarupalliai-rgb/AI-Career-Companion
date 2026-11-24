@@ -1,15 +1,17 @@
 """Auth business logic. Routers stay thin and call these functions."""
 
 import logging
+import secrets
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app import security
-from app.models import RefreshToken, User
+from app.config import get_settings
+from app.models import EmailToken, RefreshToken, User
 
 log = logging.getLogger(__name__)
 
@@ -96,3 +98,50 @@ def revoke_all(db: Session, user_id: uuid.UUID) -> None:
     ):
         row.revoked = True
     db.commit()
+
+
+# ---------- email verification ----------
+
+RESEND_COOLDOWN_SECONDS = 60
+PURPOSE = "verify_email"
+
+
+def _aware(dt: datetime) -> datetime:
+    return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+
+
+def create_verification_token(db: Session, user: User) -> str:
+    """Issue a new one-time token (older unused ones stop working). Returns the raw token for the email."""
+    for old in db.scalars(select(EmailToken).where(EmailToken.user_id == user.id, EmailToken.purpose == PURPOSE, EmailToken.used_at.is_(None))):
+        old.used_at = datetime.now(timezone.utc)
+    raw = secrets.token_urlsafe(32)
+    hours = get_settings().verification_token_hours
+    db.add(EmailToken(user_id=user.id, purpose=PURPOSE, token_hash=security.hash_token(raw),
+                      expires_at=datetime.now(timezone.utc) + timedelta(hours=hours)))
+    db.commit()
+    return raw
+
+
+def seconds_until_resend(db: Session, user: User) -> int:
+    last = db.scalar(select(EmailToken.created_at).where(EmailToken.user_id == user.id, EmailToken.purpose == PURPOSE)
+                     .order_by(EmailToken.created_at.desc()).limit(1))
+    if last is None:
+        return 0
+    wait = RESEND_COOLDOWN_SECONDS - (datetime.now(timezone.utc) - _aware(last)).total_seconds()
+    return max(0, int(wait) + (1 if wait > 0 else 0))
+
+
+def verify_email(db: Session, token: str) -> User:
+    """Mark the account's email as verified. A token works once and expires."""
+    row = db.scalar(select(EmailToken).where(EmailToken.token_hash == security.hash_token(token), EmailToken.purpose == PURPOSE))
+    if row is None or row.used_at is not None or _aware(row.expires_at) <= datetime.now(timezone.utc):
+        raise AuthError("This verification link is invalid or has expired. Request a new one.", 400)
+    user = db.get(User, row.user_id)
+    if user is None or not user.is_active:
+        raise AuthError("Account not available", 400)
+    row.used_at = datetime.now(timezone.utc)
+    if user.email_verified_at is None:
+        user.email_verified_at = datetime.now(timezone.utc)
+    db.commit()
+    log.info("email verified user=%s", user.id)
+    return user

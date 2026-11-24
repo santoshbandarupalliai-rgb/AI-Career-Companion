@@ -19,8 +19,8 @@ from sqlalchemy.orm import Session
 
 from app.llm import LLMError, generate_structured
 from app.models import InterviewItem, InterviewSession
-from app.schemas.interview import EvaluationLLM, QuestionsLLM
-from app.services import internship_service, resume_service, skill_service
+from app.schemas.interview import CategoryResult, EvaluationLLM, QuestionsLLM, ReportOut
+from app.services import guardrails, internship_service, pii, resume_service, skill_service
 
 _URL = re.compile(r"https?://\S+|www\.\S+", re.I)
 MIN_ANSWER_CHARS = 10
@@ -54,11 +54,14 @@ def _clean(text: str) -> str:
     return _URL.sub("", text).strip()
 
 
-def _context(db: Session, user_id: uuid.UUID, internship_id: uuid.UUID | None):
+def _context(db: Session, user_id: uuid.UUID, internship_id: uuid.UUID | None, resume_id: uuid.UUID | None = None):
     """Collect plain values for prompts (and the target label) and release the DB transaction."""
     item = internship_service.get_internship(db, user_id, internship_id) if internship_id else None
     verified = sorted((r.skill.name for r in skill_service.list_skills(db, user_id)["verified"]), key=str.lower)
-    resume = resume_service.active_resume(db, user_id)
+    try:
+        resume = resume_service.resolve(db, user_id, resume_id)
+    except resume_service.ResumeNotFound:
+        raise InterviewError("That resume was not found.")
     data = resume.extraction.data if resume is not None and resume.extraction is not None else {}
     projects = [p.get("name", "") for p in (data.get("projects") or []) if isinstance(p, dict) and p.get("name")]
     experience = [f"{e.get('title', '')} at {e.get('organization', '')}".strip() for e in (data.get("experience") or []) if isinstance(e, dict)]
@@ -72,10 +75,10 @@ def _context(db: Session, user_id: uuid.UUID, internship_id: uuid.UUID | None):
     return posting, verified, projects, experience
 
 
-def create_session(db: Session, user_id: uuid.UUID, *, role: str | None, internship_id: uuid.UUID | None, count: int) -> InterviewSession:
+def create_session(db: Session, user_id: uuid.UUID, *, role: str | None, internship_id: uuid.UUID | None, count: int, resume_id: uuid.UUID | None = None) -> InterviewSession:
     if not role and not internship_id:
         raise InterviewError("Choose a role or an internship to practise for.")
-    posting, verified, projects, experience = _context(db, user_id, internship_id)
+    posting, verified, projects, experience = _context(db, user_id, internship_id, resume_id)
     target = (role or "").strip() or posting["title"]
     lines = [f"Number of questions: {count}", f"Target role: {target}"]
     if posting:
@@ -150,9 +153,18 @@ def answer_item(db: Session, user_id: uuid.UUID, session_id: uuid.UUID, item_id:
     question, category, role = item.question, item.category, session.role
     db.rollback()  # no transaction open during the LLM call
 
-    prompt = (f"Role: {role}\nQuestion category: {category}\nQuestion:\n<<<\n{question}\n>>>\n\n"
-              f"Student's answer:\n<<<\n{answer}\n>>>")
-    ev = generate_structured(prompt, EvaluationLLM, system=EVAL_SYSTEM, temperature=0.2)
+    if guardrails.looks_like_injection(answer):
+        # An "answer" that tries to instruct the evaluator is not an interview answer: no AI call, lowest score.
+        ev = EvaluationLLM(
+            relevance=0, structure=0, depth=0, strengths=[],
+            improvements=["This looked like an instruction to the evaluator, not an answer to the question. Answer the question in your own words."],
+            answer_outline="",
+        )
+    else:
+        # The answer is masked (contact details, national ids) before it goes to the AI service.
+        prompt = (f"Role: {role}\nQuestion category: {category}\nQuestion:\n<<<\n{question}\n>>>\n\n"
+                  f"Student's answer:\n<<<\n{pii.redact_all(answer)}\n>>>")
+        ev = generate_structured(prompt, EvaluationLLM, system=EVAL_SYSTEM, temperature=0.2)
 
     item = db.scalar(select(InterviewItem).where(InterviewItem.id == item_id, InterviewItem.user_id == user_id))
     if item is None:
@@ -167,3 +179,45 @@ def answer_item(db: Session, user_id: uuid.UUID, session_id: uuid.UUID, item_id:
     item.answered_at = datetime.now(timezone.utc)
     db.commit()
     return item
+
+
+# ---------- diagnostic report ----------
+
+LEVELS = [
+    (7.5, "Strong", "Your answers were relevant, structured and detailed. Keep practising with harder questions."),
+    (5.5, "Developing", "You have a solid base. Focus on structure and concrete examples to move up."),
+    (0.0, "Needs practice", "Spend time on the basics of the role and practise answering with a clear structure and a real example."),
+]
+
+
+def build_report(db: Session, user_id: uuid.UUID, session_id: uuid.UUID) -> ReportOut:
+    """Summarise a session from its saved scores and feedback. Deterministic: no AI call, nothing invented."""
+    session = _owned_session(db, user_id, session_id)
+    items = list(session.items)
+    scored = [i for i in items if i.score is not None]
+    avg = round(sum(i.score for i in scored) / len(scored), 1) if scored else None
+    if avg is None:
+        level, note = "Not enough answers", "Answer at least one question to get a diagnostic."
+    else:
+        level, note = next((name, text) for floor, name, text in LEVELS if avg >= floor)
+
+    per_cat: dict[str, list[int]] = {}
+    for i in scored:
+        per_cat.setdefault(i.category, []).append(i.score)
+    cats = [CategoryResult(category=c, answered=len(v), average=round(sum(v) / len(v), 1)) for c, v in per_cat.items()]
+    cats.sort(key=lambda c: -c.average)
+
+    def collect(field: str, best_first: bool) -> list[str]:
+        out: list[str] = []
+        for i in sorted(scored, key=lambda x: x.score, reverse=best_first):
+            for text in (i.feedback or {}).get(field, []):
+                if text and text not in out:
+                    out.append(text)
+        return out[:3]
+
+    return ReportOut(
+        total=len(items), answered=len(scored), unanswered=len(items) - len(scored), average_score=avg, level=level,
+        level_note=note, by_category=cats,
+        strongest=cats[0].category if len(cats) > 1 else None, weakest=cats[-1].category if len(cats) > 1 else None,
+        top_strengths=collect("strengths", True), top_improvements=collect("improvements", False),
+    )

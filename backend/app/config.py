@@ -34,6 +34,21 @@ class Settings(BaseSettings):
     refresh_token_expire_days: int = Field(default=7, ge=1, le=90)
 
     frontend_origin: str = "http://localhost:5173"
+
+    # Email (verification links). With no SMTP_HOST the link is only written to the server log (development).
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_from: str = ""  # defaults to smtp_user
+    smtp_starttls: bool = True  # STARTTLS on 587; set false with smtp_ssl for implicit TLS on 465
+    smtp_ssl: bool = False
+    app_base_url: str = ""  # link base used in emails; defaults to frontend_origin
+    require_email_verification: bool = False  # when true, unverified users can only verify and resend
+    verification_token_hours: int = Field(default=24, ge=1, le=168)
+
+    # Mask sensitive identifiers (Aadhaar, PAN, card numbers, ...) in every prompt sent to an AI provider.
+    pii_redaction: bool = True
     log_level: str = "INFO"
     upload_dir: Path = BACKEND_DIR / "uploads"
 

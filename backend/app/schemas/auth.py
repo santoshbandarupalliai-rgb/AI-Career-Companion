@@ -58,8 +58,19 @@ class UserOut(BaseModel):
     id: uuid.UUID
     full_name: str
     email: EmailStr
+    email_verified: bool = True
     created_at: datetime
 
 
 class AuthResponse(TokenPair):
     user: UserOut
+
+
+class VerifyEmailRequest(BaseModel):
+    token: str = Field(min_length=10, max_length=200)
+
+
+class ResendOut(BaseModel):
+    sent: bool  # False when SMTP is not configured (the link is only in the server log)
+    already_verified: bool = False
+    message: str
