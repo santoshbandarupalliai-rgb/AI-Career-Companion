@@ -90,3 +90,11 @@ class ApplicationDetail(ApplicationOut):
 class ApplicationList(BaseModel):
     items: list[ApplicationOut]
     counts: dict[str, int]  # per status, over all of this user's applications
+
+
+class ApplyRequest(BaseModel):
+    """Demo 'Apply': records an application as Applied in the tracker. Nothing is sent to any company."""
+
+    internship_id: uuid.UUID
+    resume_id: uuid.UUID | None = None  # defaults to the active resume
+    notes: str | None = Field(default=None, max_length=1000)

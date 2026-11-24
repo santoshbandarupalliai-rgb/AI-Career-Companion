@@ -54,6 +54,7 @@ Scores are **deterministic**: fixed rules over your *verified* skills, so the sa
 
 ## How the application tracker and Career Assistant work
 
+- **Apply (demo)**: every internship card has an Apply button. It records the application as *Applied* in the tracker (resume choice and a note are optional; a Saved application is moved forward, a duplicate is refused). The postings are fictional, so nothing is sent to any company; the button is labelled as a demo.
 - **Tracker**: track a knowledge-base posting with one click (company and role are copied from it) or add an external one. Statuses: saved, applied, online assessment, interview, offer, rejected, withdrawn. Every change is logged with an optional note; deadlines show days left.
 - **Career Assistant**: a LangGraph agent that calls the app's own tools (profile, internship search, match ranking and scoring, skill gap, interview questions, tracker) for up to 4 steps per message, then answers from the results. Scores and gaps come from the same deterministic rules as the other pages. It **cannot change data**: adding or updating an application shows up as a proposal under the answer, and nothing happens until you press Confirm. The model only sees short item codes, never database ids, and the server checks every code.
 

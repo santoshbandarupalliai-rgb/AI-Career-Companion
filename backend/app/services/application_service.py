@@ -103,6 +103,38 @@ def create(db: Session, user_id: uuid.UUID, payload: ApplicationCreate) -> Appli
     return app
 
 
+DEMO_NOTE = "Applied through the app (demo: nothing was sent to the company)"
+
+
+def apply(db: Session, user_id: uuid.UUID, internship_id: uuid.UUID, resume_id: uuid.UUID | None = None, notes: str | None = None) -> Application:
+    """Demo 'Apply': record the application as Applied (creating it, or moving a Saved one forward).
+
+    The posting must be visible to the student and the resume must be theirs; the active resume is used when none is
+    chosen. An application that is already past Saved is a conflict. Nothing is sent anywhere.
+    """
+    try:
+        item = internship_service.get_internship(db, user_id, internship_id)
+    except internship_service.InternshipError:
+        raise ApplicationError("Internship not found")
+    _owned_resume(db, user_id, resume_id)
+    if resume_id is None:
+        resume_id = db.scalar(select(Resume.id).where(Resume.user_id == user_id, Resume.is_active.is_(True)))
+    notes = (notes or "").strip() or None
+
+    existing = find_by_internship(db, user_id, item.id)
+    if existing is None:
+        app = create(db, user_id, ApplicationCreate(internship_id=item.id, status="applied", resume_id=resume_id, notes=notes))
+        app.events[0].note = DEMO_NOTE
+        db.commit()
+        return app
+    if existing.status != "saved":
+        raise ApplicationConflict(f"You have already applied to '{item.title}' at {item.company} (status: {STATUS_LABELS[existing.status]})")
+    existing.resume_id = resume_id
+    if notes:
+        existing.notes = notes
+    return change_status(db, user_id, existing.id, "applied", DEMO_NOTE)
+
+
 def update(db: Session, user_id: uuid.UUID, application_id: uuid.UUID, payload: ApplicationUpdate) -> Application:
     app = get(db, user_id, application_id)
     data = payload.model_dump(exclude_unset=True)

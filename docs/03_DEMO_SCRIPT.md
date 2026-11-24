@@ -48,7 +48,7 @@ A step-by-step walk through all nine modules, the dashboard and both assistants.
 2. Search `build a chatbot over documents` with *Smart (semantic) search* on. Results are ranked by meaning, with a relevance score.
 3. Turn smart search off and search `Brightlane` to show plain title/company search. Use the work-mode and skill filters.
 4. Click **Add from job description**, paste any short job description (write your own; do not use a real company's text), click **Extract details**, review the draft, save. It appears marked **Yours** and is visible only to this account. 🤖 (a heuristic fallback is used if Gemini fails.)
-5. On any card click **Track** (used again in step 9).
+5. On any card click **Track** (used again in step 9), or **Apply**: choose a resume, add an optional note and click **Submit application**. This is a demo: it records the application as **Applied** in the tracker and nothing is sent to any company. The card then shows **Applied (demo)**.
 
 ## 5. Module 4: Job matching
 

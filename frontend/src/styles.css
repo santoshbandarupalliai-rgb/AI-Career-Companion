@@ -482,3 +482,6 @@ ul.tight { margin: 0.2rem 0 0; padding-left: 1.1rem; display: flex; flex-directi
 .bar > span { display: block; height: 100%; border-radius: 999px; background: var(--primary); }
 .bar-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 860px) { .bar-row { grid-template-columns: 6.5rem 1fr 2rem; } }
+
+/* ---------- Demo apply panel ---------- */
+.apply-panel { border: 1px dashed var(--border-strong); border-radius: var(--radius-sm); padding: 0.9rem; background: var(--surface-2); }

@@ -14,6 +14,7 @@ from app.schemas.application import (
     ApplicationList,
     ApplicationOut,
     ApplicationUpdate,
+    ApplyRequest,
     EventOut,
     Status,
     StatusChange,
@@ -64,6 +65,16 @@ def list_applications(
 def create_application(payload: ApplicationCreate, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     try:
         a = svc.create(db, user.id, payload)
+    except _ERRORS as exc:
+        raise _http(exc)
+    return _detail(db, a)
+
+
+@router.post("/apply", response_model=ApplicationDetail, status_code=status.HTTP_201_CREATED)
+def apply(payload: ApplyRequest, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Demo apply: mark an internship as Applied in the tracker. Nothing is sent to the company."""
+    try:
+        a = svc.apply(db, user.id, payload.internship_id, payload.resume_id, payload.notes)
     except _ERRORS as exc:
         raise _http(exc)
     return _detail(db, a)

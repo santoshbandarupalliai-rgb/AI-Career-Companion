@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, errorMessage } from "../api/client.js";
 import AddInternship from "../components/AddInternship.jsx";
+import { resumeName } from "../components/ResumeManager.jsx";
 
 const PAGE = 12;
 const MODE_LABEL = { remote: "Remote", onsite: "On-site", hybrid: "Hybrid" };
@@ -33,8 +34,64 @@ function TrackButton({ item, tracked, onTracked }) {
   );
 }
 
-function InternshipCard({ item, onDelete, tracked, onTracked }) {
+// Demo "Apply": records the application as Applied in the tracker. Nothing is sent to the company.
+function ApplyPanel({ item, resumes, onApplied, onClose }) {
+  const [resumeId, setResumeId] = useState("");
+  const [notes, setNotes] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  async function submit(e) {
+    e.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      await api.post("/applications/apply", { internship_id: item.id, resume_id: resumeId || undefined, notes: notes.trim() || undefined });
+      onApplied(item.id);
+    } catch (err) {
+      if (err.response?.status === 409) onApplied(item.id);
+      else setError(errorMessage(err, "Could not record the application."));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <form className="apply-panel stack" onSubmit={submit}>
+      <div className="row-between wrap">
+        <strong>Apply to {item.title} at {item.company}</strong>
+        <span className="badge sample">Demo</span>
+      </div>
+      <p className="muted small">
+        This is a demonstration: it records the application as <em>Applied</em> in your tracker. Nothing is sent to the company.
+      </p>
+      {resumes.length > 0 && (
+        <label>
+          Resume
+          <select value={resumeId} onChange={(e) => setResumeId(e.target.value)} aria-label="Resume to apply with">
+            <option value="">Active resume</option>
+            {resumes.map((r) => (
+              <option key={r.id} value={r.id}>{resumeName(r)}{r.is_active ? " (active)" : ""}</option>
+            ))}
+          </select>
+        </label>
+      )}
+      <label>
+        Note (optional)
+        <textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={1000} placeholder="For example: referred by a senior, or what you highlighted" />
+      </label>
+      {error && <div className="alert">{error}</div>}
+      <div className="row">
+        <button className="btn btn-primary" disabled={busy}>{busy ? "Submitting…" : "Submit application"}</button>
+        <button type="button" className="btn btn-ghost" onClick={onClose} disabled={busy}>Cancel</button>
+      </div>
+    </form>
+  );
+}
+
+function InternshipCard({ item, onDelete, tracked, onTracked, applied, onApplied, resumes }) {
   const [open, setOpen] = useState(false);
+  const [applying, setApplying] = useState(false);
   const meta = [item.location, MODE_LABEL[item.work_mode], item.stipend, item.duration]
     .filter(Boolean)
     .filter((v, i, a) => a.findIndex((x) => x.toLowerCase() === v.toLowerCase()) === i);
@@ -78,10 +135,20 @@ function InternshipCard({ item, onDelete, tracked, onTracked }) {
       <div className="actions">
         <button className="btn btn-ghost small" onClick={() => setOpen(!open)}>{open ? "Hide details" : "Show details"}</button>
         <TrackButton item={item} tracked={tracked} onTracked={onTracked} />
+        {applied ? (
+          <Link className="btn btn-ghost small" to="/applications">✓ Applied (demo)</Link>
+        ) : (
+          <button className="btn btn-primary small" onClick={() => setApplying((a) => !a)} aria-expanded={applying} title="Demo: records an application in your tracker">
+            {applying ? "Close" : "Apply"}
+          </button>
+        )}
         {item.source === "user" && (
           <button className="btn btn-ghost small danger" onClick={() => onDelete(item)}>Delete</button>
         )}
       </div>
+      {applying && !applied && (
+        <ApplyPanel item={item} resumes={resumes} onApplied={(id) => { setApplying(false); onApplied(id); }} onClose={() => setApplying(false)} />
+      )}
     </article>
   );
 }
@@ -98,14 +165,24 @@ export default function InternshipsPage() {
   const [filters, setFilters] = useState({ work_mode: "", source: "", skill: "", location: "" });
   const reqId = useRef(0);
   const [trackedIds, setTrackedIds] = useState(() => new Set());
+  const [appliedIds, setAppliedIds] = useState(() => new Set());
+  const [resumes, setResumes] = useState([]);
 
   useEffect(() => {
     api.get("/applications").then(
-      ({ data }) => setTrackedIds(new Set(data.items.map((a) => a.internship_id).filter(Boolean))),
-      () => {} // the Track button still works; a duplicate is reported as already tracked
+      ({ data }) => {
+        setTrackedIds(new Set(data.items.map((a) => a.internship_id).filter(Boolean)));
+        setAppliedIds(new Set(data.items.filter((a) => a.status !== "saved").map((a) => a.internship_id).filter(Boolean)));
+      },
+      () => {} // the buttons still work; a duplicate is reported as already tracked or applied
     );
+    api.get("/resumes").then(({ data }) => setResumes(data), () => {});
   }, []);
   const markTracked = useCallback((id) => setTrackedIds((s) => new Set(s).add(id)), []);
+  const markApplied = useCallback((id) => {
+    setTrackedIds((s) => new Set(s).add(id));
+    setAppliedIds((s) => new Set(s).add(id));
+  }, []);
 
   const load = useCallback(
     async (offset = 0) => {
@@ -238,7 +315,7 @@ export default function InternshipsPage() {
           </p>
           <div className="internship-list">
             {items.map((item) => (
-              <InternshipCard key={item.id} item={item} onDelete={remove} tracked={trackedIds.has(item.id)} onTracked={markTracked} />
+              <InternshipCard key={item.id} item={item} onDelete={remove} tracked={trackedIds.has(item.id)} onTracked={markTracked} applied={appliedIds.has(item.id)} onApplied={markApplied} resumes={resumes} />
             ))}
           </div>
           {!(searching && smart) && items.length < total && (
