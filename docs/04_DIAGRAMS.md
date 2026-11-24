@@ -151,6 +151,7 @@ erDiagram
     users ||--o{ resumes : uploads
     users ||--o{ student_skills : has
     users ||--o{ refresh_tokens : holds
+    users ||--o{ email_tokens : "verifies with"
     users ||--o{ applications : tracks
     users ||--o{ application_events : owns
     users ||--o{ chat_sessions : owns
@@ -185,6 +186,14 @@ erDiagram
         string email
         string hashed_password
         bool is_active
+        datetime email_verified_at
+    }
+    email_tokens {
+        uuid user_id FK
+        string purpose
+        string token_hash
+        datetime expires_at
+        datetime used_at
     }
     student_profiles {
         uuid user_id FK
@@ -199,6 +208,7 @@ erDiagram
         uuid id PK
         uuid user_id FK
         string original_filename
+        string label
         text raw_text
         bool is_active
         string extraction_status

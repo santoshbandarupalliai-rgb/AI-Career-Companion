@@ -28,13 +28,13 @@ The current release includes: sign-up and sign-in, the student profile, resume u
 
 In short, the product turns a student's resume into verified skills and then uses those skills to find, prepare for and track internship applications. The process, from the student's point of view:
 
-1. **Create an account and fill in the profile** (college, degree, branch, graduation year, CGPA, target role).
+1. **Create an account, verify the email address and fill in the profile** (college, degree, branch, graduation year, CGPA, target role).
 2. **Upload a resume** (PDF or DOCX). The product reads it and extracts the contact details, education, experience, projects and skills.
 3. **Review and verify the skills.** Skills found in the resume are only suggestions until the student verifies them. Only verified skills are used from here on.
 4. **Browse or search internships** in the internship knowledge base, or add a posting by pasting a job description.
 5. **See how well each internship matches.** Job matching gives a 0-100 score with a breakdown, and skill gap analysis shows which skills to learn next.
 6. **Generate application documents.** For a chosen internship the product drafts a tailored resume or a cover letter from the student's real resume. The student reviews, edits and saves it.
-7. **Practise interviews.** Interview preparation creates questions for a role or an internship and scores the student's answers.
+7. **Practise interviews.** Interview preparation is a mock interview chat: it asks questions for a role or an internship, scores each answer and gives a diagnostic report at the end.
 8. **Track applications.** The application tracker records each application's status, deadlines and notes.
 9. **Ask for help.** The Career Assistant helps with the student's own search using their data, and the Product Assistant explains how the product works. The dashboard shows progress and the next suggested step.
 
@@ -42,22 +42,23 @@ In short, the product turns a student's resume into verified skills and then use
 
 ### 2.0 All features at a glance (Available)
 
-The product has fourteen features, all available in the current release: account and sign-in, the student profile, resume upload and parsing, skill review, the internship knowledge base, adding an internship from a job description, job matching, skill gap analysis, resume and cover-letter tailoring, interview preparation, the application tracker, the Career Assistant, the Product Assistant and the dashboard. What each one does:
+The product has fifteen features, all available in the current release: account and sign-in, the student profile, resume upload and parsing, skill review, the internship knowledge base, adding an internship from a job description, job matching, skill gap analysis, resume and cover-letter tailoring, interview preparation, the application tracker, the Career Assistant, the Product Assistant, the dashboard and privacy protection for sensitive data. What each one does:
 
-- **Account and sign-in:** register and sign in securely; each student only sees their own data.
+- **Account and sign-in:** register and sign in securely; each student only sees their own data. A verification email confirms the email address.
 - **Student profile:** academic details and target role, empty until the student fills them in.
-- **Resume upload and parsing:** upload a PDF or DOCX resume (up to 5 MB) and have it structured automatically.
+- **Resume upload and parsing:** upload PDF or DOCX resumes (up to 5 MB each, up to 10 resumes, each with an optional name such as "Backend resume") and have them structured automatically.
 - **Skill review:** confirm, reject or add skills; only verified skills count.
 - **Internship knowledge base:** browse and filter internships and search them by meaning (semantic search).
 - **Add an internship from a job description:** paste a posting and review the extracted details before saving.
 - **Job matching:** an explainable 0-100 compatibility score for each internship.
 - **Skill gap analysis:** the skills missing for a role or an internship, ranked, with an optional learning plan.
 - **Resume and cover-letter tailoring:** a resume or cover letter written for one chosen internship from the student's real resume, checked for invented facts.
-- **Interview preparation:** practice questions for a role or internship, with scored feedback on answers.
+- **Interview preparation:** a mock interview chat that asks questions for a role or internship, scores each answer and ends with a diagnostic report.
 - **Application tracker:** statuses, deadlines, notes and a history of changes for each application.
-- **Career Assistant:** a chat assistant that uses the student's own profile, matches and applications, and only changes data after the student confirms.
-- **Product Assistant:** a chat assistant that answers questions about the product from this document, remembers the conversation and cites its sources.
+- **Career Assistant:** a chat assistant that uses the student's own profile, matches and applications, only changes data after the student confirms, and stays within the internship search.
+- **Product Assistant:** a chat assistant that answers questions about the product from this document, remembers the conversation, cites its sources and stays within the product.
 - **Dashboard:** profile completeness, resume status, skills, applications, upcoming deadlines and a suggested next step.
+- **Privacy protection:** national ids, card and bank numbers are masked before text goes to an AI service, and contact details are masked in what the student types.
 
 ### 2.1 Account and sign-in (Available)
 
@@ -65,9 +66,11 @@ The product has fourteen features, all available in the current release: account
 
 **How it works:** A student registers with a name, email and a password of at least 8 characters containing a letter and a number. Passwords are stored only as bcrypt hashes. After sign-in the app receives a short-lived access token (30 minutes) and a refresh token (7 days). The app renews the access token automatically, and only a genuine "not authenticated" answer signs the user out, so a network hiccup does not log anyone out.
 
-**How to use:** Open the app, choose "Create one" on the sign-in page, fill in the form, then sign in.
+**Email verification:** After registering, the student receives an email with a verification link that works once and expires after 24 hours. Opening the link confirms the address. Until then a banner on every page offers "Resend email" (one new email per minute; the newest link replaces older ones). The server can be set to require a verified email before anything else can be used; by default unverified students can still use the product. If the server has no email settings, the link is written to the server log instead of being emailed.
 
-**Output:** A signed-in session and access to the student's own data only.
+**How to use:** Open the app, choose "Create one" on the sign-in page, fill in the form, then sign in. Open the link in the verification email to confirm your address.
+
+**Output:** A signed-in session, a verified email address and access to the student's own data only.
 
 ### 2.2 Student profile (Available)
 
@@ -90,7 +93,7 @@ The product has fourteen features, all available in the current release: account
 4. A deterministic grounding check removes any skill, project technology or contact detail that does not appear in the resume text. What was removed is listed as notes.
 5. If Gemini is unavailable, a simpler heuristic parser extracts contact details and recognised skills, and the resume is marked "partial". The student can re-run extraction later.
 
-**How to use:** On "Profile & Resumes", choose a file and upload. Open "Resume Parsing" to see what was extracted. Use "Re-run extraction" to try again. A student can keep up to 10 resumes and choose which one is active.
+**How to use:** On "Profile & Resumes", choose a file and upload. Open "Resume Parsing" to see what was extracted. Use "Re-run extraction" to try again. A student can keep up to 10 resumes, give each a name (for example "Backend resume" or "Data resume") with "Rename", and choose which one is active. The active resume is the default for matching, tailoring and interview practice; "Resume & Cover Letter", "Interview Prep" and the application form also let the student pick a different resume. Email addresses and phone numbers in a resume are replaced by placeholders before the text is sent to the AI service, and the real values are put back afterwards.
 
 **Output:** Structured resume data, a status (complete or partial), and a list of notes from the grounding check.
 
@@ -168,11 +171,11 @@ The product has fourteen features, all available in the current release: account
 
 **Purpose:** Practise for interviews with questions based on a role or a specific internship and on the student's real skills and projects, and get scored feedback.
 
-**How it works:** The student chooses a role or an internship and a number of questions (5, 8 or 10). The AI writes the questions using the role, the posting (if one is chosen), the student's verified skills and the real projects and experience on the active resume. Questions come in four categories: technical, behavioral, situational and "about your resume" (only when the resume has projects or experience to ask about). There is no fixed question bank: if the AI cannot produce questions, no session is created. The student types an answer to each question and asks for feedback. The AI scores the answer with a fixed rubric of relevance and accuracy (0 to 4), structure and clarity (0 to 3) and depth and examples (0 to 3), for a total out of 10, and gives strengths, improvements and an outline of what a strong answer would cover. This is AI feedback, not an official grade. Answers can be re-scored. Sessions, answers, scores and feedback are saved per student, and the session list shows how many questions are answered and the average score.
+**How it works:** The student chooses a role or an internship and a number of questions (5, 8 or 10). The AI writes the questions using the role, the posting (if one is chosen), the student's verified skills and the real projects and experience on the active resume. Questions come in four categories: technical, behavioral, situational and "about your resume" (only when the resume has projects or experience to ask about). There is no fixed question bank: if the AI cannot produce questions, no session is created. The session works like a mock interview chat: the interviewer asks one question at a time, the student types an answer and sends it, and the interviewer replies with feedback before moving to the next question. Questions can be skipped. The AI scores each answer with a fixed rubric of relevance and accuracy (0 to 4), structure and clarity (0 to 3) and depth and examples (0 to 3), for a total out of 10, and gives strengths, improvements and an outline of what a strong answer would cover. This is AI feedback, not an official grade. An answer that only tries to give instructions to the evaluator is not sent to the AI and scores zero. At the end, or at any time after the first answer, the student can open a diagnostic report: the overall level (Strong, Developing or Needs practice), the average score for each type of question, the strongest and weakest type, and the strengths and improvements that came up most. The report is calculated from the saved scores and uses no AI. Sessions, answers, scores and feedback are saved per student, and the session list shows how many questions are answered and the average score.
 
-**How to use:** Open "Interview Prep", choose a role or an internship, and choose "Start practice". Answer a question and choose "Get feedback". Reopen or delete earlier sessions from the list.
+**How to use:** Open "Interview Prep", choose a role or an internship (and a resume if you keep several), and choose "Start mock interview". Type your answer and choose "Send answer"; choose "Skip question" to move on. Choose "Show diagnostic report" for the summary. Reopen or delete earlier sessions from the list.
 
-**Output:** A saved practice session with questions, answers, scores out of 10 and written feedback.
+**Output:** A saved mock interview with questions, answers, scores out of 10, written feedback and a diagnostic report.
 
 ### 2.12 Application tracker (Available)
 
@@ -204,11 +207,21 @@ The product has fourteen features, all available in the current release: account
 
 **Output:** A status overview, upcoming deadlines and a suggested next step.
 
+### 2.15 Privacy protection (Available)
+
+**Purpose:** Keep sensitive personal data away from external AI services.
+
+**How it works:** Before any text is sent to an AI service, the product masks sensitive identifiers: Aadhaar-style 12-digit ids, PAN numbers, card numbers (checked with the Luhn test), bank account numbers written next to a label, IFSC codes, passport numbers, US social security numbers and dates of birth written next to a label. They are replaced by markers such as [REDACTED_PAN]. For resumes, the email address and phone number are replaced by placeholders while the AI reads the resume, and the real values are restored in the result, so the contact fields still work. Contact details that a student types into a chat message or an interview answer are masked before they reach the AI. The messages as the student typed them are still shown in the student's own chat history. Masking is based on patterns, so it is a safety net and not a guarantee. It can be switched off with a server setting.
+
+**How to use:** Nothing to do. Avoid typing sensitive numbers into chats.
+
+**Output:** AI prompts that do not contain the masked identifiers.
+
 ## 3. How to Use
 
 ### 3.1 Getting started step by step
 
-1. Open the app and choose "Create one" to register, then sign in.
+1. Open the app and choose "Create one" to register, then sign in. Open the link in the verification email to confirm your address.
 2. Open "Profile & Resumes" and fill in your profile, then save.
 3. Upload your resume (PDF or DOCX, up to 5 MB).
 4. Open "Resume Parsing", read what was extracted, and check any notes.
@@ -218,7 +231,7 @@ The product has fourteen features, all available in the current release: account
 8. Open "Job Matching" to see how well each internship fits you and why.
 9. Open "Skill Gap" to see which skills to learn next for a role or an internship.
 10. Open "Resume & Cover Letter" to tailor a resume or write a cover letter for an internship, review it, and save it.
-11. Open "Interview Prep" to practise questions for a role and get feedback on your answers.
+11. Open "Interview Prep" to take a mock interview for a role: answer the questions one by one, read the feedback and open the diagnostic report.
 12. Use "Track" on internships you are interested in, and keep their status up to date on "Applications".
 13. Use the floating "Career Assistant" button (bottom right) to ask for help with your own search, for example which internships fit you and what to learn next.
 14. Choose "Product Assistant" in the header any time to ask how something works.
@@ -251,6 +264,14 @@ The product has fourteen features, all available in the current release: account
 **Can the Career Assistant change my applications by itself?** No. It can only propose a change. Nothing is added or updated until you choose "Confirm" under its answer.
 
 **What is the difference between the Career Assistant and the Product Assistant?** The Career Assistant works with your own profile, matches and applications. The Product Assistant answers questions about how the app works, only from this document, and cannot see your data.
+
+**Why will the assistants not answer a general question?** Each assistant has one area. The Career Assistant only helps with your internship search, skills, applications and interview practice. The Product Assistant only answers questions about how this product works, from this document. Anything else gets a short reply saying what they can help with. They also refuse requests to ignore their rules or reveal their instructions.
+
+**Is my personal data sent to the AI service?** Resume and chat text is sent to the AI service to generate answers. National id numbers, card and bank numbers, dates of birth and similar identifiers are masked first. Email addresses and phone numbers in a resume are replaced by placeholders, and contact details you type into a chat or an interview answer are masked. Masking is pattern based, so avoid typing sensitive numbers into the chat.
+
+**Why do I see a banner asking me to verify my email?** Your email address has not been confirmed yet. Open the link in the verification email, or choose "Resend email" in the banner.
+
+**Can I keep more than one resume?** Yes, up to 10. Give each a name, choose which one is active, and pick a different one when you tailor a document or practise for an interview.
 
 **What happens if the AI service is down?** If a second AI provider (Groq) is configured, the request is retried there automatically. If every provider fails, resume parsing falls back to a basic parser, job-description extraction fills in recognised skills only, and the Product Assistant and Career Assistant report an error rather than guessing; nothing is saved from a failed answer.
 
@@ -301,7 +322,7 @@ Every chat query filters by user ID, session ID and assistant type together. A s
 
 ### 4.6 Security
 
-AI-written resume and cover-letter text passes through a deterministic fact guard before the student can save it. Passwords are hashed with bcrypt. Tokens are signed JWTs. Uploaded files are validated by content and size. Error messages do not echo submitted values. Every user-owned query is filtered by the signed-in user's ID. The Career Assistant cannot write data: its proposals are executed only when the student confirms them, using parameters stored on the server.
+AI-written resume and cover-letter text passes through a deterministic fact guard before the student can save it. Passwords are hashed with bcrypt. Tokens are signed JWTs. Uploaded files are validated by content and size. Error messages do not echo submitted values. Every user-owned query is filtered by the signed-in user's ID. The Career Assistant cannot write data: its proposals are executed only when the student confirms them, using parameters stored on the server. Email verification tokens are random, single-use, expire after 24 hours and are stored only as hashes. Sensitive identifiers are masked in every prompt sent to an AI service. Both assistants are limited to their own areas: a first check answers greetings and refuses attempts to change their rules without calling the AI, the Career Assistant must classify every message as in scope or out of scope, and the Product Assistant answers only from retrieved sections of this document. Refusals are fixed texts, not written by the AI.
 
 ## 5. Tech Stack
 

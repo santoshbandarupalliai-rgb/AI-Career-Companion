@@ -37,7 +37,8 @@ After sign-in the dashboard shows real status from your own data: profile comple
 ## How tailoring and interview prep work
 
 - **Tailoring**: the AI may only rephrase what is already in your profile and resume. Employers, titles and dates are copied from your resume (the model refers to entries by index), the resume skills list contains only *verified* skills, and a deterministic **fact guard** flags invented numbers, unverified skills, unknown names and bullets that do not resemble their source. You get a draft, edit it, and approve it; saving re-runs the checks and asks you to confirm anything still flagged. Export to .docx.
-- **Interview prep**: questions generated from the role or posting plus your verified skills and real projects (no canned bank), scored against a fixed 0-10 rubric (relevance 4, structure 3, depth 3) with feedback. Sessions are saved. Scores are AI feedback, not a grade.
+- **Interview prep (mock interview)**: a chat in which the interviewer asks one question at a time, generated from the role or posting plus your verified skills and real projects (no canned bank). Each answer is scored against a fixed 0-10 rubric (relevance 4, structure 3, depth 3) with feedback, and a diagnostic report (level, score per question type, recurring strengths and improvements) is calculated from the saved scores. An answer that only tries to instruct the evaluator is not sent to the AI and scores 0. Sessions are saved. Scores are AI feedback, not a grade.
+- **Several resumes**: keep up to 10 resumes, name them (for example "Backend resume"), and pick which one tailoring and interview practice use; the active one is the default.
 
 ## How matching and skill gap work
 
@@ -88,6 +89,11 @@ Fill in `backend\.env`:
 | `SECRET_KEY` | `python -c "import secrets; print(secrets.token_hex(32))"` |
 | `GEMINI_API_KEY` | Google AI Studio → Get API key |
 | `GROQ_API_KEY` (optional) | console.groq.com → API Keys. Fallback when Gemini is rate-limited or down. `GROQ_MODEL` (default `openai/gpt-oss-120b`) and `LLM_PROVIDERS` (default `gemini,groq`, the order tried) are optional |
+
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` (optional) | An SMTP account for verification emails, for example Gmail with an app password (`smtp.gmail.com`, port 587). `SMTP_STARTTLS` (default true) and `SMTP_SSL` (for port 465) are optional. **Without `SMTP_HOST` no email is sent**: the verification link is written to the backend log, which is enough for development. |
+| `APP_BASE_URL` (optional) | Base of the link in verification emails; defaults to `FRONTEND_ORIGIN`. |
+| `REQUIRE_EMAIL_VERIFICATION` (optional, default false) | When true, an account must verify its email before it can use anything except `/api/auth/me`, verification and resending. |
+| `PII_REDACTION` (optional, default true) | Masks sensitive identifiers in every prompt sent to an AI service. |
 
 `.env` is git-ignored. Never commit it.
 
@@ -166,6 +172,9 @@ docs/                  design blueprint, product knowledge document (+ exports),
 - Validation errors never echo submitted values. Unhandled errors return a generic 500 with a request id; details go to the server log only.
 - Logs pass through a redacting formatter that strips SQL parameters, email addresses and tokens, tracebacks included. Resume and job-description text is not logged.
 - Every query on user-owned data is filtered by the signed-in user's id; the Career Assistant cannot write data without a button click.
+- **Email verification**: after registering, a single-use link (24 hours, stored only as a hash) confirms the address; resending is limited to one email per minute. Accounts created before this existed were marked verified by the migration.
+- **PII redaction**: Aadhaar-style ids, PAN, card numbers (Luhn-checked), labelled bank account numbers, IFSC codes, passport numbers, SSNs and labelled dates of birth are masked in every prompt sent to an AI provider. In resumes, the email address and phone number are replaced by placeholders while the AI reads the text and restored afterwards; contact details typed into chats and interview answers are masked. It is pattern based (a safety net, not a guarantee) and the chat history still shows what the user typed.
+- **Assistant guardrails**: each assistant has one area. A pre-check answers greetings and refuses prompt-injection attempts without calling the AI; the Career Assistant must classify every message as in or out of scope and an out-of-scope message gets a fixed refusal (no tool runs); the Product Assistant answers only from retrieved documentation sections. Refusal texts are fixed strings.
 
 ## Known limitations
 
