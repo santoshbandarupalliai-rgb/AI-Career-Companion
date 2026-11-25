@@ -65,7 +65,13 @@ Acceptance criteria are the behaviours covered by the automated tests.
 | E1-E8 stories above | Done |
 | Manual testing of all features with the live AI services, including the Groq fallback | Done (completed by the student) |
 | UI visual polish (new theme, header, floating assistant button) | Done |
-| Verify Mermaid diagrams render | Open |
+| Email verification (SMTP link, resend, optional enforcement) | Done |
+| Several resumes per student: names, and choosing which one a feature uses | Done |
+| PII redaction before text is sent to AI services | Done |
+| Assistant guardrails: each assistant answers only its own area, refuses prompt injection | Done |
+| Interview prep as a mock interview chat with a diagnostic report | Done |
+| Demo "Apply" option on internship cards (records an Applied application) | Done |
+| Verify Mermaid diagrams render | Done |
 | PDF export of tailored resume, CV templates, streaming answers | Descoped (blueprint cut line) |
 
 ## 6. Retrospective (real lessons)
@@ -82,4 +88,4 @@ Acceptance criteria are the behaviours covered by the automated tests.
 
 **Result**
 - All features were tested manually by the student against the live AI services after the fallback was added, and are working. The repository is published.
-- Remaining: confirm the Mermaid diagrams render on GitHub.
+- The Mermaid diagrams were confirmed to render on GitHub. After the first release the product gained email verification, named resumes, PII redaction, assistant guardrails, a mock interview chat with a diagnostic report and a demo Apply option.
