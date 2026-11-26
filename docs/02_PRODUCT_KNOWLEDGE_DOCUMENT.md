@@ -34,7 +34,7 @@ In short, the product turns a student's resume into verified skills and then use
 4. **Browse or search internships** in the internship knowledge base, or add a posting by pasting a job description.
 5. **See how well each internship matches.** Job matching gives a 0-100 score with a breakdown, and skill gap analysis shows which skills to learn next.
 6. **Generate application documents.** For a chosen internship the product drafts a tailored resume or a cover letter from the student's real resume. The student reviews, edits and saves it.
-7. **Practise interviews.** Interview preparation is a mock interview chat: it asks questions for a role or an internship, scores each answer and gives a diagnostic report at the end.
+7. **Prepare for interviews.** The Interview Prep Agent uses the resume data to recommend suitable roles and internships and prepares the student for them (questions, answer guidance, roadmap, learning path, and Q&A on uploaded documents). The mock interview scores the student's answers and gives a diagnostic report.
 8. **Track applications.** The application tracker records each application's status, deadlines and notes.
 9. **Ask for help.** The Career Assistant helps with the student's own search using their data, and the Product Assistant explains how the product works. The dashboard shows progress and the next suggested step.
 
@@ -53,7 +53,7 @@ The product has fifteen features, all available in the current release: account 
 - **Job matching:** an explainable 0-100 compatibility score for each internship.
 - **Skill gap analysis:** the skills missing for a role or an internship, ranked, with an optional learning plan.
 - **Resume and cover-letter tailoring:** a resume or cover letter written for one chosen internship from the student's real resume, checked for invented facts.
-- **Interview preparation:** a mock interview chat that asks questions for a role or internship, scores each answer and ends with a diagnostic report.
+- **Interview preparation:** an Interview Prep Agent chat that uses your resume data to recommend roles and internships, generates technical and HR questions, answer guidance, roadmaps and learning paths, and answers questions about PDF/DOCX documents you upload; plus a scored mock interview with a diagnostic report.
 - **Application tracker:** statuses, deadlines, notes and a history of changes for each application.
 - **Career Assistant:** a chat assistant that uses the student's own profile, matches and applications, only changes data after the student confirms, and stays within the internship search.
 - **Product Assistant:** a chat assistant that answers questions about the product from this document, remembers the conversation, cites its sources and stays within the product.
@@ -76,7 +76,7 @@ The product has fifteen features, all available in the current release: account 
 
 **Purpose:** Hold the student's academic and career details in one place.
 
-**How it works:** The profile has fields such as college, degree, branch, CGPA, graduation year, target role, location, bio and links (LinkedIn, GitHub, portfolio). It starts empty. Values are validated, for example CGPA must be within a sensible range and links must be valid.
+**How it works:** The profile has fields such as college, degree, branch, CGPA, graduation year, target role, location, bio and links (LinkedIn, GitHub, portfolio). It starts empty and is filled in only by the student: nothing is copied into the profile from an uploaded resume. Values are validated, for example CGPA must be within a sensible range and links must be valid.
 
 **How to use:** Open "Profile & Resumes" and fill in the form, then save.
 
@@ -171,13 +171,21 @@ The product has fifteen features, all available in the current release: account 
 
 ### 2.11 Interview preparation (Available)
 
-**Purpose:** Practise for interviews with questions based on a role or a specific internship and on the student's real skills and projects, and get scored feedback.
+**Purpose:** Help the student find the roles that suit their resume and prepare for interviews, and let them practise with scored answers.
 
-**How it works:** The student chooses a role or an internship and a number of questions (5, 8 or 10). The AI writes the questions using the role, the posting (if one is chosen), the student's verified skills and the real projects and experience on the active resume. Questions come in four categories: technical, behavioral, situational and "about your resume" (only when the resume has projects or experience to ask about). There is no fixed question bank: if the AI cannot produce questions, no session is created. The session works like a mock interview chat: the interviewer asks one question at a time, the student types an answer and sends it, and the interviewer replies with feedback before moving to the next question. Questions can be skipped. The AI scores each answer with a fixed rubric of relevance and accuracy (0 to 4), structure and clarity (0 to 3) and depth and examples (0 to 3), for a total out of 10, and gives strengths, improvements and an outline of what a strong answer would cover. This is AI feedback, not an official grade. An answer that only tries to give instructions to the evaluator is not sent to the AI and scores zero. At the end, or at any time after the first answer, the student can open a diagnostic report: the overall level (Strong, Developing or Needs practice), the average score for each type of question, the strongest and weakest type, and the strengths and improvements that came up most. The report is calculated from the saved scores and uses no AI. Sessions, answers, scores and feedback are saved per student, and the session list shows how many questions are answered and the average score.
+**How it works:** The page has two parts.
 
-**How to use:** Open "Interview Prep", choose a role or an internship (and a resume if you keep several), and choose "Start mock interview". Type your answer and choose "Send answer"; choose "Skip question" to move on. Choose "Show diagnostic report" for the summary. Reopen or delete earlier sessions from the list.
+*Interview Prep Agent (chat).* An AI agent that uses the student's extracted resume data as context: education, experience, projects, certifications and skills (verified skills, and skills listed on the resume but not yet verified, kept apart), the profile the student entered, and the internship matches calculated by the matching engine. Contact details are never sent to it. The student can ask:
+- **Role recommendation:** "Which role can I apply for?", "Which internship is suitable for my skills?", "What are my strongest technical skills?". The agent explains each suggestion with evidence from the resume and recommends only internships from the knowledge base, with their real scores.
+- **Interview preparation:** role-specific, technical and HR questions, guidance on how to answer them (for example the STAR method), topics to prepare, a week-by-week preparation roadmap and a learning path.
+- **Document Q&A:** the student can upload up to 3 PDF or DOCX files (5 MB each) to a chat. The text is extracted, split into chunks and indexed with embeddings like the product knowledge base. Questions about the document are answered only from the most relevant excerpts, which are shown as sources, and the agent can generate practice questions with answers from the document. Documents belong to their chat and are deleted with it.
+The agent remembers the conversation, so follow-ups such as "Give me HR questions for it" work. It stays within its area: unrelated questions get a fixed reply saying what it can help with, and attempts to change its instructions are refused. If the AI service fails, nothing is stored.
 
-**Output:** A saved mock interview with questions, answers, scores out of 10, written feedback and a diagnostic report.
+*Mock interview.* The student chooses a role or an internship (and a resume if they keep several) and a number of questions (5, 8 or 10). The AI writes the questions from the role, the posting, the verified skills and the real projects and experience on the resume, in four categories: technical, behavioral, situational and "about your resume". The session works like an interview chat: one question at a time, the student answers, and the interviewer replies with a score out of 10 from a fixed rubric (relevance and accuracy 0 to 4, structure and clarity 0 to 3, depth and examples 0 to 3), strengths, improvements and an outline of a strong answer. Questions can be skipped. An answer that only tries to instruct the evaluator is not sent to the AI and scores zero. A diagnostic report shows the overall level (Strong, Developing or Needs practice), the average per type of question, the strongest and weakest type, and the recurring strengths and improvements; it is calculated from the saved scores without AI. Scores are AI feedback, not an official grade.
+
+**How to use:** Open "Interview Prep". On the "Prep Agent" tab choose a suggestion or type a question; choose "Upload PDF/DOCX" to add a document to the chat and then ask about it. On the "Mock interview" tab choose a role or an internship and "Start mock interview", answer each question with "Send answer" (or "Skip question"), and choose "Show diagnostic report".
+
+**Output:** Saved chats with role recommendations, interview questions, roadmaps and document answers with sources; saved mock interviews with scores, feedback and a diagnostic report.
 
 ### 2.12 Application tracker (Available)
 
@@ -233,7 +241,7 @@ The product has fifteen features, all available in the current release: account 
 8. Open "Job Matching" to see how well each internship fits you and why.
 9. Open "Skill Gap" to see which skills to learn next for a role or an internship.
 10. Open "Resume & Cover Letter" to tailor a resume or write a cover letter for an internship, review it, and save it.
-11. Open "Interview Prep" to take a mock interview for a role: answer the questions one by one, read the feedback and open the diagnostic report.
+11. Open "Interview Prep": ask the Prep Agent which roles suit you and how to prepare (you can also upload notes as PDF/DOCX and ask about them), then take a mock interview and open the diagnostic report.
 12. Use "Track" on internships you are interested in, and keep their status up to date on "Applications".
 13. Use the floating "Career Assistant" button (bottom right) to ask for help with your own search, for example which internships fit you and what to learn next.
 14. Choose "Product Assistant" in the header any time to ask how something works.
@@ -272,6 +280,10 @@ The product has fifteen features, all available in the current release: account 
 **Is my personal data sent to the AI service?** Resume and chat text is sent to the AI service to generate answers. National id numbers, card and bank numbers, dates of birth and similar identifiers are masked first. Email addresses and phone numbers in a resume are replaced by placeholders, and contact details you type into a chat or an interview answer are masked. Masking is pattern based, so avoid typing sensitive numbers into the chat.
 
 **Why do I see a banner asking me to verify my email?** Your email address has not been confirmed yet. Open the link in the verification email, or choose "Resend email" in the banner.
+
+**Does my resume fill in my profile?** No. The profile is entered by you only. The resume is used for skills (which you verify) and as context for tailoring and interview preparation.
+
+**What can the Interview Prep Agent do?** It recommends roles and internships that suit your resume, names your strongest skills, writes technical and HR questions with answer guidance, makes a preparation roadmap and learning path, and answers questions about PDF or DOCX files you upload to the chat.
 
 **Can I keep more than one resume?** Yes, up to 10. Give each a name, choose which one is active, and pick a different one when you tailor a document or practise for an interview.
 

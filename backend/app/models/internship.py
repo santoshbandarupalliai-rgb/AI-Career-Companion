@@ -77,7 +77,7 @@ class RagDocument(Base):
 
     __tablename__ = "rag_documents"
     __table_args__ = (
-        CheckConstraint("corpus IN ('internship','product')", name="corpus_valid"),
+        CheckConstraint("corpus IN ('internship','product','prep_doc')", name="corpus_valid"),
         UniqueConstraint("corpus", "source_key", name="uq_rag_documents_corpus_source_key"),
     )
 

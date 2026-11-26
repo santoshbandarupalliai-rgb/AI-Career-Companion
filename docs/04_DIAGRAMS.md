@@ -176,6 +176,7 @@ erDiagram
     applications ||--o{ application_events : "status history"
 
     chat_sessions ||--o{ chat_messages : contains
+    chat_sessions ||--o{ prep_documents : "documents for Q&A"
     chat_messages ||--o{ message_feedback : rated
     interview_sessions ||--o{ interview_items : questions
     rag_documents ||--o{ rag_chunks : "split into"
@@ -301,6 +302,13 @@ erDiagram
         int score
         json feedback
     }
+    prep_documents {
+        uuid id PK
+        uuid session_id FK
+        uuid user_id FK
+        string filename
+        text text
+    }
     rag_documents {
         uuid id PK
         string corpus
@@ -321,4 +329,4 @@ erDiagram
     }
 ```
 
-`chat_sessions.assistant_type` (`product` or `career`) keeps the two assistants' chats apart; `services/chat_repo.py` is the only code that reads or writes chat rows and always filters by user and assistant type.
+`chat_sessions.assistant_type` (`product`, `career` or `interview`) keeps the three assistants' chats apart; `services/chat_repo.py` is the only code that reads or writes chat rows and always filters by user and assistant type.

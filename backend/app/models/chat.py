@@ -10,11 +10,11 @@ from app.models.user import utcnow
 
 
 class ChatSession(Base):
-    """A conversation. `assistant_type` keeps Career and Product assistants strictly apart."""
+    """A conversation. `assistant_type` keeps the Career, Product and Interview Prep assistants strictly apart."""
 
     __tablename__ = "chat_sessions"
     __table_args__ = (
-        CheckConstraint("assistant_type IN ('career','product')", name="assistant_type_valid"),
+        CheckConstraint("assistant_type IN ('career','product','interview')", name="assistant_type_valid"),
         Index("ix_chat_sessions_user_type_updated", "user_id", "assistant_type", "updated_at"),
     )
 
@@ -63,4 +63,22 @@ class MessageFeedback(Base):
     message_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("chat_messages.id", ondelete="CASCADE"), nullable=False)
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     rating: Mapped[int] = mapped_column(Integer, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+
+
+class PrepDocument(Base):
+    """A PDF/DOCX a student attached to an Interview Prep chat, for document-based Q&A.
+
+    The extracted text is kept here; its chunks and embeddings live in rag_documents/rag_chunks with
+    corpus='prep_doc' and source_key = this row's id. Deleting the chat deletes its documents.
+    """
+
+    __tablename__ = "prep_documents"
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False)
+    session_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("chat_sessions.id", ondelete="CASCADE"), index=True, nullable=False)
+    filename: Mapped[str] = mapped_column(String(255), nullable=False)
+    char_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)

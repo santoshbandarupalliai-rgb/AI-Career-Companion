@@ -2,7 +2,7 @@
 
 from app.models.application import Application, ApplicationEvent
 from app.models.career import GeneratedDocument, InterviewItem, InterviewSession
-from app.models.chat import ChatMessage, ChatSession, MessageFeedback
+from app.models.chat import ChatMessage, ChatSession, MessageFeedback, PrepDocument
 from app.models.internship import Internship, InternshipSkill, RagChunk, RagDocument
 from app.models.profile import Resume, ResumeExtraction, Skill, StudentProfile, StudentSkill
 from app.models.user import EmailToken, RefreshToken, User
@@ -16,6 +16,7 @@ __all__ = [
     "ChatSession",
     "ChatMessage",
     "MessageFeedback",
+    "PrepDocument",
     "Internship",
     "InternshipSkill",
     "RagDocument",

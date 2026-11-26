@@ -17,28 +17,6 @@ const FIELDS = [
   { key: "portfolio_url", label: "Portfolio URL" },
 ];
 
-// Profile fields that can be copied from the active resume's extracted data.
-function suggestionsFromResume(data, form) {
-  if (!data) return {};
-  const p = data.personal || {};
-  const edu = (data.education || [])[0] || {};
-  const candidates = {
-    phone: p.phone,
-    location: p.location,
-    linkedin_url: p.linkedin,
-    github_url: p.github,
-    portfolio_url: p.portfolio,
-    college: edu.institution,
-    degree: edu.degree,
-    branch: edu.field,
-  };
-  const out = {};
-  for (const [k, v] of Object.entries(candidates)) {
-    if (v && !form[k]) out[k] = v;
-  }
-  return out;
-}
-
 export default function ProfilePage() {
   const [form, setForm] = useState(null);
   const [saved, setSaved] = useState(null);
@@ -46,7 +24,6 @@ export default function ProfilePage() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
-  const [activeExtraction, setActiveExtraction] = useState(null);
 
   useEffect(() => {
     api
@@ -85,14 +62,12 @@ export default function ProfilePage() {
   if (!form) return error ? <div className="alert">{error}</div> : <p className="muted">Loading…</p>;
 
   const dirty = JSON.stringify(form) !== JSON.stringify(saved);
-  const suggestions = suggestionsFromResume(activeExtraction, form);
-  const suggestionCount = Object.keys(suggestions).length;
 
   return (
     <div>
       <h1>Profile & Resumes</h1>
       <p className="muted">
-        Everything here is entered by you. Skills come from your resume and you confirm them on the{" "}
+        Your profile is entered by you only: nothing is copied into it from a resume. Skills come from your resume and you confirm them on the{" "}
         <Link to="/resume">Resume Parsing</Link> page.
       </p>
 
@@ -100,11 +75,6 @@ export default function ProfilePage() {
         <form className="card stack" onSubmit={onSave} noValidate>
           <div className="row-between">
             <h2>Academic & career profile</h2>
-            {suggestionCount > 0 && (
-              <button type="button" className="btn btn-ghost small" onClick={() => setForm({ ...form, ...suggestions })}>
-                Fill {suggestionCount} empty field{suggestionCount > 1 ? "s" : ""} from resume
-              </button>
-            )}
           </div>
           <div className="form-grid">
             {FIELDS.map((f) => (
@@ -137,7 +107,7 @@ export default function ProfilePage() {
           </div>
         </form>
 
-        <ResumeManager onActiveExtraction={setActiveExtraction} />
+        <ResumeManager />
       </div>
     </div>
   );

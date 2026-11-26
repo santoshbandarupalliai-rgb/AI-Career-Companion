@@ -20,8 +20,14 @@ MAX_MESSAGE_CHARS = 2000
 
 PRODUCT = "product"
 CAREER = "career"
+INTERVIEW = "interview"
 
 REFUSAL = {
+    INTERVIEW: (
+        "I can only help you prepare for internships and interviews: roles that suit your resume, your strongest skills, "
+        "interview questions (technical and HR), answer guidance, a preparation roadmap and learning path, and questions "
+        "about a document you upload here. I can't help with unrelated topics."
+    ),
     PRODUCT: (
         "I can only answer questions about how AI Career Companion works: its features, how to use them, its "
         "architecture and the technology it uses. For example: \"How does job matching work?\" or \"How do I upload my resume?\""
@@ -34,11 +40,17 @@ REFUSAL = {
 }
 
 INJECTION_REPLY = {
+    INTERVIEW: "I can't change my instructions or share them. " + REFUSAL[INTERVIEW],
     PRODUCT: "I can't change my instructions or share them. " + REFUSAL[PRODUCT],
     CAREER: "I can't change my instructions or share them. " + REFUSAL[CAREER],
 }
 
 GREETING_REPLY = {
+    INTERVIEW: (
+        "Hello! I'm your Interview Prep Agent. I use your resume and profile to help you prepare. Try: \"Which role can I apply "
+        "for?\", \"What are my strongest technical skills?\", \"Give me technical and HR questions for a backend internship\", "
+        "\"Make me a 4-week preparation roadmap\", or upload a PDF/DOCX and ask me about it."
+    ),
     PRODUCT: (
         "Hello! I'm the Product Assistant. Ask me how AI Career Companion works: its features, how to upload a resume, "
         "how matching works, how to generate a cover letter or how to use interview preparation."
@@ -50,6 +62,7 @@ GREETING_REPLY = {
 }
 
 THANKS_REPLY = {
+    INTERVIEW: "You're welcome! Ask me for more practice questions, a roadmap, or questions about your uploaded document.",
     PRODUCT: "You're welcome! Ask me anything else about how the product works.",
     CAREER: "You're welcome! Let me know if you want help with matches, skill gaps, interview practice or your applications.",
 }

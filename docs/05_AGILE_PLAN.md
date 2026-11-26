@@ -70,6 +70,8 @@ Acceptance criteria are the behaviours covered by the automated tests.
 | PII redaction before text is sent to AI services | Done |
 | Assistant guardrails: each assistant answers only its own area, refuses prompt injection | Done |
 | Interview prep as a mock interview chat with a diagnostic report | Done |
+| Interview Prep Agent: resume-based role recommendation, interview preparation, document Q&A | Done |
+| Profile filled in manually only (no autofill from the resume) | Done |
 | Demo "Apply" option on internship cards (records an Applied application) | Done |
 | Verify Mermaid diagrams render | Done |
 | PDF export of tailored resume, CV templates, streaming answers | Descoped (blueprint cut line) |

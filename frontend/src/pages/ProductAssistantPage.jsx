@@ -1,3 +1,4 @@
+import RichText from "../components/RichText.jsx";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, errorMessage } from "../api/client.js";
 
@@ -34,7 +35,7 @@ function Message({ m, onRate }) {
   const mine = m.role === "user";
   return (
     <div className={`msg ${mine ? "msg-user" : "msg-bot"}`}>
-      <div className="msg-body">{m.content}</div>
+      <div className="msg-body">{m.role === "user" ? m.content : <RichText text={m.content} />}</div>
       {!mine && (
         <>
           <Citations citations={m.citations} />

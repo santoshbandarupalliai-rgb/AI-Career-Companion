@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, errorMessage } from "../api/client.js";
 import { resumeName } from "../components/ResumeManager.jsx";
+import PrepAgent from "../components/PrepAgent.jsx";
 
 const CAT = { technical: "Technical", behavioral: "Behavioral", resume: "About your resume", situational: "Situational" };
 const LEVEL_CLASS = { Strong: "level-strong", Developing: "level-developing", "Needs practice": "level-needs" };
@@ -223,7 +224,7 @@ function MockInterview({ detail, onUpdated }) {
   );
 }
 
-export default function InterviewPage() {
+function MockInterviewSection() {
   const [sessions, setSessions] = useState(null);
   const [active, setActive] = useState(null);
   const [internships, setInternships] = useState([]);
@@ -305,13 +306,10 @@ export default function InterviewPage() {
 
   return (
     <div className="stack-lg">
-      <div className="page-head">
-        <h1>Interview Prep</h1>
-        <p className="muted">
-          A mock interview: the interviewer asks questions written for a role or a specific internship (based on your verified skills and real projects), you
-          answer in your own words, and each answer is scored with feedback. At the end you get a diagnostic report. Your sessions are saved.
-        </p>
-      </div>
+      <p className="muted">
+        The interviewer asks questions written for a role or a specific internship (based on your verified skills and real projects), you answer in your
+        own words, and each answer is scored with feedback. At the end you get a diagnostic report. Your sessions are saved.
+      </p>
 
       <form className="card stack" onSubmit={create}>
         <div className="row wrap">
@@ -367,6 +365,25 @@ export default function InterviewPage() {
           )}
         </section>
       </div>
+    </div>
+  );
+}
+
+export default function InterviewPage() {
+  const [tab, setTab] = useState("agent");
+  return (
+    <div className="stack-lg">
+      <div className="page-head">
+        <h1>Interview Prep</h1>
+        <p className="muted">
+          Chat with the Interview Prep Agent to find the roles that suit your resume and prepare for them, or practise with a scored mock interview.
+        </p>
+      </div>
+      <div className="tabs" role="tablist">
+        <button role="tab" aria-selected={tab === "agent"} className={`tab ${tab === "agent" ? "active" : ""}`} onClick={() => setTab("agent")}>Prep Agent</button>
+        <button role="tab" aria-selected={tab === "mock"} className={`tab ${tab === "mock" ? "active" : ""}`} onClick={() => setTab("mock")}>Mock interview</button>
+      </div>
+      {tab === "agent" ? <PrepAgent /> : <MockInterviewSection />}
     </div>
   );
 }

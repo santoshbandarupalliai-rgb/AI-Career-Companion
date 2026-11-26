@@ -485,3 +485,19 @@ ul.tight { margin: 0.2rem 0 0; padding-left: 1.1rem; display: flex; flex-directi
 
 /* ---------- Demo apply panel ---------- */
 .apply-panel { border: 1px dashed var(--border-strong); border-radius: var(--radius-sm); padding: 0.9rem; background: var(--surface-2); }
+
+/* ---------- Tabs ---------- */
+.tabs { display: flex; gap: 0.35rem; border-bottom: 1px solid var(--border); }
+.tab {
+  border: none; background: transparent; font: inherit; font-weight: 550; color: var(--muted); cursor: pointer;
+  padding: 0.55rem 0.9rem; border-bottom: 3px solid transparent; margin-bottom: -1px;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--primary); border-bottom-color: var(--accent); }
+
+/* ---------- Assistant answers (light Markdown) ---------- */
+.msg-bot .msg-body:has(.rich-text) { white-space: normal; }
+.rich-text { display: flex; flex-direction: column; gap: 0.35rem; }
+.rich-text .rt-p { margin: 0; }
+.rich-text .rt-heading { margin: 0.3rem 0 0; font-weight: 650; }
+.rich-text .rt-list { margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.25rem; }

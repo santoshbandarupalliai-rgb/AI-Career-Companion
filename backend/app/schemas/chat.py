@@ -99,3 +99,14 @@ class CareerSendResponse(BaseModel):
 
 class ActionDecision(BaseModel):
     decision: Literal["confirm", "cancel"]
+
+
+class PrepDocumentOut(BaseModel):
+    id: uuid.UUID
+    filename: str
+    char_count: int
+    created_at: datetime
+
+
+class PrepSessionDetail(SessionDetail):
+    documents: list[PrepDocumentOut] = Field(default_factory=list)
