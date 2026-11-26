@@ -13,6 +13,30 @@ from sqlalchemy.pool import StaticPool
 import app.models  # noqa: F401
 from app.db import Base, get_db
 from app.main import app
+from app.services import email_service
+
+
+class _NoNetworkSMTP:
+    """Stands in for smtplib.SMTP/SMTP_SSL so no test can send a real email (backend/.env may hold real SMTP settings)."""
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def __getattr__(self, name):  # starttls, login, send_message, quit, ...
+        return lambda *a, **k: None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+
+@pytest.fixture(autouse=True)
+def _no_real_email(monkeypatch):
+    # Tests that need a specific SMTP behaviour patch these again themselves; that later patch wins.
+    monkeypatch.setattr(email_service.smtplib, "SMTP", _NoNetworkSMTP)
+    monkeypatch.setattr(email_service.smtplib, "SMTP_SSL", _NoNetworkSMTP)
 
 
 @pytest.fixture()

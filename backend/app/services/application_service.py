@@ -168,7 +168,7 @@ def change_status(db: Session, user_id: uuid.UUID, application_id: uuid.UUID, st
                          note=(note or "").strip()[:500] or None, created_at=now)
     )
     if app.applied_on is None and status not in ("saved", "withdrawn"):
-        app.applied_on = now.date()
+        app.applied_on = date.today()  # the student's calendar day, as in create(); not the UTC date
     app.status = status
     app.updated_at = now
     db.commit()

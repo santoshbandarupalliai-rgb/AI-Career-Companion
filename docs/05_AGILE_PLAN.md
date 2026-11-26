@@ -81,7 +81,7 @@ Acceptance criteria are the behaviours covered by the automated tests.
 ## 6. Retrospective (real lessons)
 
 **Went well**
-- Phase-by-phase delivery with a strict Definition of Done kept each layer stable (213 automated tests).
+- Phase-by-phase delivery with a strict Definition of Done kept each layer stable (330 automated tests).
 - Keeping scoring deterministic and the LLM only for wording made results explainable.
 - Separating extracted from verified skills and adding a fact guard prevented invented claims.
 

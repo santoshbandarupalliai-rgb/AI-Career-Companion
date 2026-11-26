@@ -1,10 +1,10 @@
 # AI Career Companion
 
-An AI-powered career platform for students looking for internships: profile and resume intelligence, internship matching, skill-gap analysis, tailored applications, interview preparation, application tracking, and two separate assistants (a **Career Assistant** and a **Product Assistant**).
+An AI-powered career platform for students looking for internships: profile and resume intelligence, internship matching, skill-gap analysis, tailored applications, interview preparation, application tracking, and three separate chat assistants (a **Career Assistant**, an **Interview Prep Agent** and a **Product Assistant**).
 
 Runs entirely on **localhost**: React + Vite frontend, FastAPI backend, and Supabase PostgreSQL (+ pgvector) as the database. No local PostgreSQL install is needed.
 
-> **Status: complete and tested.** All nine modules, the status dashboard and both assistants are built and working: authentication, student profile, resume parsing and skill review, the internship knowledge base (sample postings, paste-a-JD, semantic search), explainable job matching and skill-gap analysis, tailored resumes and cover letters with a fact guard, interview practice, the application tracker, the Career Assistant (tool-using agent) and the Product Assistant (RAG chat with memory, sessions and citations). See [`docs/01_DESIGN_BLUEPRINT.md`](docs/01_DESIGN_BLUEPRINT.md) for the design and build plan.
+> **Status: complete and tested.** All nine modules, the status dashboard and all three assistants are built and working: authentication, student profile, resume parsing and skill review, the internship knowledge base (sample postings, paste-a-JD, semantic search), explainable job matching and skill-gap analysis, tailored resumes and cover letters with a fact guard, interview practice, the application tracker, the Career Assistant (tool-using agent), the Interview Prep Agent and the Product Assistant (RAG chat with memory, sessions and citations). See [`docs/01_DESIGN_BLUEPRINT.md`](docs/01_DESIGN_BLUEPRINT.md) for the design and build plan.
 
 ## Documentation
 
@@ -12,7 +12,7 @@ Runs entirely on **localhost**: React + Vite frontend, FastAPI backend, and Supa
 |---|---|
 | [`docs/01_DESIGN_BLUEPRINT.md`](docs/01_DESIGN_BLUEPRINT.md) | Requirements, architecture decisions and the build plan |
 | [`docs/02_PRODUCT_KNOWLEDGE_DOCUMENT.md`](docs/02_PRODUCT_KNOWLEDGE_DOCUMENT.md) | Product Knowledge Document (the Product Assistant's only source). Exports: [`docs/exports/`](docs/exports/) (.docx and .pdf) |
-| [`docs/03_DEMO_SCRIPT.md`](docs/03_DEMO_SCRIPT.md) | Step-by-step demo through every module and both assistants |
+| [`docs/03_DEMO_SCRIPT.md`](docs/03_DEMO_SCRIPT.md) | Step-by-step demo through every module and the assistants |
 | [`docs/04_DIAGRAMS.md`](docs/04_DIAGRAMS.md) | Mermaid diagrams: architecture, RAG pipeline, both assistant graphs, database schema |
 | [`docs/05_AGILE_PLAN.md`](docs/05_AGILE_PLAN.md) | Agile plan: product vision, milestones, epics and user stories, backlog status and retrospective |
 | [`docs/deliverables/`](docs/deliverables/) | Agile Project Documentation (PDF and DOCX, with screenshots) and the 10-slide project presentation (PPTX) |
@@ -92,7 +92,6 @@ Fill in `backend\.env`:
 | `SECRET_KEY` | `python -c "import secrets; print(secrets.token_hex(32))"` |
 | `GEMINI_API_KEY` | Google AI Studio → Get API key |
 | `GROQ_API_KEY` (optional) | console.groq.com → API Keys. Fallback when Gemini is rate-limited or down. `GROQ_MODEL` (default `openai/gpt-oss-120b`) and `LLM_PROVIDERS` (default `gemini,groq`, the order tried) are optional |
-
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` (optional) | An SMTP account for verification emails, for example Gmail with an app password (`smtp.gmail.com`, port 587). `SMTP_STARTTLS` (default true) and `SMTP_SSL` (for port 465) are optional. For Gmail, turn on 2-Step Verification and create an **App Password** (myaccount.google.com/apppasswords); put its 16 characters in `SMTP_PASSWORD` without spaces. **Without these settings no email is sent** (a login user without a password counts as not configured): the verification link is written to the backend log instead, which is enough for development. |
 | `APP_BASE_URL` (optional) | Base of the link in verification emails; defaults to `FRONTEND_ORIGIN`. |
 | `REQUIRE_EMAIL_VERIFICATION` (optional, default false) | When true, an account must verify its email before it can use anything except `/api/auth/me`, verification and resending. |
@@ -164,7 +163,7 @@ frontend/
     api/client.js      axios client: auth header, single-flight token refresh
     auth/              AuthContext (login/register/logout/session restore)
     pages/ components/
-docs/                  design blueprint, product knowledge document (+ exports), demo script, diagrams
+docs/                  design blueprint, product knowledge document (+ exports), demo script, diagrams, agile plan, deliverables
 ```
 
 ## Security notes
@@ -182,11 +181,11 @@ docs/                  design blueprint, product knowledge document (+ exports),
 ## Known limitations
 
 - **LLM fallback and privacy**: if `GROQ_API_KEY` is set, a request that Gemini rejects (rate limit, outage, bad output) is retried on Groq, which then receives the same prompt, including resume text. Leave the key empty to keep all text with Gemini.
-- **Gemini free tier**: the LLM-backed features (resume parsing, JD extraction, explanations, learning plans, tailoring, interview questions and scoring, both assistants) can answer with a rate-limit or "high demand" message. The app then shows the error and stores nothing; resume parsing falls back to a heuristic parser. Deterministic features (matching, skill gap, tracker, dashboard) do not need it.
+- **Gemini free tier**: the LLM-backed features (resume parsing, JD extraction, explanations, learning plans, tailoring, interview questions and scoring, the assistants) can answer with a rate-limit or "high demand" message. The app then shows the error and stores nothing; resume parsing falls back to a heuristic parser. Deterministic features (matching, skill gap, tracker, dashboard) do not need it.
 - **Testing**: automated tests use fakes for the AI services; all features were also tested manually end to end against the live services, including the Groq fallback. AI output quality can still vary between runs.
 - Sample internships are fictional demo data; there is no live job feed.
 - Scanned (image-only) resumes are rejected; there is no OCR.
 - Tailored documents export to .docx only (no PDF export or CV templates).
 - Answers are not streamed; the assistants reply when complete.
-- Runs on localhost only; there is no deployment configuration, email verification or password reset.
+- Runs on localhost only; there is no deployment configuration and no password reset.
 - The semantic thresholds (`SEM_LOW/SEM_HIGH`, `MIN_SCORE`, `ROLE_MIN_SIMILARITY`) were tuned on the sample data and the current embedding model; re-measure if either changes.
