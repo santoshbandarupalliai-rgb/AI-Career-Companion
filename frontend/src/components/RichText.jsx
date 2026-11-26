@@ -16,7 +16,7 @@ export default function RichText({ text }) {
   const flush = () => {
     if (list) {
       const Tag = list.ordered ? "ol" : "ul";
-      blocks.push(<Tag key={`l${blocks.length}`} className="rt-list">{list.items}</Tag>);
+      blocks.push(<Tag key={`l${blocks.length}`} className="rt-list" start={list.ordered ? list.start : undefined}>{list.items}</Tag>);
       list = null;
     }
   };
@@ -30,7 +30,7 @@ export default function RichText({ text }) {
       const ordered = !!numbered && !bullet;
       if (!list || list.ordered !== ordered) {
         flush();
-        list = { ordered, items: [] };
+        list = { ordered, items: [], start: numbered && !bullet ? Number(numbered[1]) : undefined };
       }
       const content = bullet ? bullet[1] : numbered[2];
       list.items.push(<li key={i}>{inline(content, i)}</li>);
