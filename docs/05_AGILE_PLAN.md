@@ -76,7 +76,6 @@ Acceptance criteria are the behaviours covered by the automated tests.
 | Stipend and duration shown on match cards and tracker cards | Done |
 | Demo "Apply" option on internship cards (records an Applied application) | Done |
 | Verify Mermaid diagrams render | Done |
-| PDF export of tailored resume, CV templates, streaming answers | Descoped (blueprint cut line) |
 
 ## 6. Retrospective (real lessons)
 
