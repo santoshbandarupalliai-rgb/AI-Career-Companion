@@ -197,6 +197,7 @@ function ApplicationCard({ app, resumes, onChanged, onDeleted }) {
                 {!closed && left !== null && (left < 0 ? " (passed)" : left === 0 ? " (today)" : ` (${left} day${left === 1 ? "" : "s"} left)`)}
               </span>
             )}
+            {app.stipend && <span>Stipend: {app.stipend}</span>}
             {app.resume_name && <span>Resume: {app.resume_name}</span>}
           </div>
         </div>

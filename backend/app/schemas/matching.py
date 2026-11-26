@@ -46,6 +46,8 @@ class MatchSummary(BaseModel):
     company: str
     location: str | None
     work_mode: str | None
+    stipend: str | None = None
+    duration: str | None = None
     source: str
     overall: float
     required_matched: int

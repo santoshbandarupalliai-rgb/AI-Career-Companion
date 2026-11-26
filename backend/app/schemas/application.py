@@ -78,6 +78,7 @@ class ApplicationOut(BaseModel):
     deadline: date | None
     resume_id: uuid.UUID | None
     resume_name: str | None
+    stipend: str | None = None  # from the linked posting, when it states one
     notes: str | None
     created_at: datetime
     updated_at: datetime

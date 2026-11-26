@@ -147,7 +147,7 @@ The product has fifteen features, all available in the current release: account 
 
 **How to use:** Verify your skills first on "Resume Parsing", then open "Job Matching". Postings are listed from best to worst. Choose "Why this score?" to see the factor table, the matched and missing skills and the eligibility checks.
 
-**Output:** A ranked list of internships with a score, a factor-by-factor breakdown with points, matched and missing skills, eligibility checks, and an optional AI explanation.
+**Output:** A ranked list of internships, each with its location, work mode, stipend and duration, a score, a factor-by-factor breakdown with points, matched and missing skills, eligibility checks, and an optional AI explanation.
 
 ### 2.9 Skill gap analysis (Available)
 
@@ -191,7 +191,7 @@ The agent remembers the conversation, so follow-ups such as "Give me HR question
 
 **Purpose:** Track every application from saved to offer, with a history of every status change.
 
-**How it works:** Each application has a status (saved, applied, online assessment, interview, offer, rejected, withdrawn), an applied date, an optional deadline, the resume used and notes. An application can be linked to a posting from the internship knowledge base, in which case its company and role are copied from the posting and cannot be edited, or it can be an external application where the student types the company and role. A posting can be tracked only once. Every status change is recorded with the time, the old and new status and an optional note. Moving past "saved" sets the applied date to today if it was empty; the student can correct it. Any status can be changed to any other, so mistakes can be fixed, and the history keeps every step. Deadlines show how many days are left and are highlighted when three days or fewer remain.
+**How it works:** Each application has a status (saved, applied, online assessment, interview, offer, rejected, withdrawn), an applied date, an optional deadline, the resume used and notes. An application can be linked to a posting from the internship knowledge base, in which case its company and role are copied from the posting and cannot be edited, or it can be an external application where the student types the company and role. A posting can be tracked only once. Every status change is recorded with the time, the old and new status and an optional note. Moving past "saved" sets the applied date to today if it was empty; the student can correct it. Any status can be changed to any other, so mistakes can be fixed, and the history keeps every step. Deadlines show how many days are left and are highlighted when three days or fewer remain. For an application linked to a posting, the posting's stipend is shown on the tracker card.
 
 **How to use:** On "Internship Knowledge Base", choose "Track" on a posting to add it as Saved, or "Apply" to record it as Applied (a demo: nothing is sent to the company). Or open "Applications" and choose "Add application" for an external posting. Change the status with the drop-down on each application; open "Details" to add a note for the next change, set dates, the resume used and notes, see the history, or remove the application. Use the status buttons at the top to filter. The Career Assistant can also propose adding or updating applications.
 

@@ -15,6 +15,7 @@ Runs entirely on **localhost**: React + Vite frontend, FastAPI backend, and Supa
 | [`docs/03_DEMO_SCRIPT.md`](docs/03_DEMO_SCRIPT.md) | Step-by-step demo through every module and both assistants |
 | [`docs/04_DIAGRAMS.md`](docs/04_DIAGRAMS.md) | Mermaid diagrams: architecture, RAG pipeline, both assistant graphs, database schema |
 | [`docs/05_AGILE_PLAN.md`](docs/05_AGILE_PLAN.md) | Agile plan: product vision, milestones, epics and user stories, backlog status and retrospective |
+| [`docs/deliverables/`](docs/deliverables/) | Agile Project Documentation (PDF and DOCX, with screenshots) and the 10-slide project presentation (PPTX) |
 
 ## Dashboard
 
@@ -92,7 +93,7 @@ Fill in `backend\.env`:
 | `GEMINI_API_KEY` | Google AI Studio → Get API key |
 | `GROQ_API_KEY` (optional) | console.groq.com → API Keys. Fallback when Gemini is rate-limited or down. `GROQ_MODEL` (default `openai/gpt-oss-120b`) and `LLM_PROVIDERS` (default `gemini,groq`, the order tried) are optional |
 
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` (optional) | An SMTP account for verification emails, for example Gmail with an app password (`smtp.gmail.com`, port 587). `SMTP_STARTTLS` (default true) and `SMTP_SSL` (for port 465) are optional. **Without `SMTP_HOST` no email is sent**: the verification link is written to the backend log, which is enough for development. |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` (optional) | An SMTP account for verification emails, for example Gmail with an app password (`smtp.gmail.com`, port 587). `SMTP_STARTTLS` (default true) and `SMTP_SSL` (for port 465) are optional. For Gmail, turn on 2-Step Verification and create an **App Password** (myaccount.google.com/apppasswords); put its 16 characters in `SMTP_PASSWORD` without spaces. **Without these settings no email is sent** (a login user without a password counts as not configured): the verification link is written to the backend log instead, which is enough for development. |
 | `APP_BASE_URL` (optional) | Base of the link in verification emails; defaults to `FRONTEND_ORIGIN`. |
 | `REQUIRE_EMAIL_VERIFICATION` (optional, default false) | When true, an account must verify its email before it can use anything except `/api/auth/me`, verification and resending. |
 | `PII_REDACTION` (optional, default true) | Masks sensitive identifiers in every prompt sent to an AI service. |

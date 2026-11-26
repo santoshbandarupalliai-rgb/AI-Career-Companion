@@ -157,3 +157,13 @@ def test_smtp_failure_is_swallowed_and_hides_the_password(monkeypatch, caplog):
 def test_verification_link_uses_the_configured_base(monkeypatch):
     monkeypatch.setattr(get_settings(), "app_base_url", "https://careers.example.org/")
     assert email_service.verification_link("abc") == "https://careers.example.org/verify-email?token=abc"
+
+
+def test_a_login_user_without_an_app_password_is_not_configured(monkeypatch):
+    s = get_settings()
+    for k, v in dict(smtp_host="smtp.gmail.com", smtp_user="someone@gmail.com", smtp_password="").items():
+        monkeypatch.setattr(s, k, v)
+    assert email_service.smtp_configured() is False
+    assert email_service.send_email("a@example.com", "s", "body with link") is False  # logged, not attempted
+    monkeypatch.setattr(s, "smtp_password", "app-password")
+    assert email_service.smtp_configured() is True

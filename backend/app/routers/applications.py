@@ -27,7 +27,7 @@ router = APIRouter(prefix="/api/applications", tags=["Applications"])
 def _out(a: Application, meta: tuple[str | None, str | None]) -> dict:
     return dict(
         id=a.id, internship_id=a.internship_id, internship_source=meta[0], company=a.company, role=a.role,
-        status=a.status, applied_on=a.applied_on, deadline=a.deadline, resume_id=a.resume_id, resume_name=meta[1],
+        status=a.status, applied_on=a.applied_on, deadline=a.deadline, resume_id=a.resume_id, resume_name=meta[1], stipend=meta[2],
         notes=a.notes, created_at=a.created_at, updated_at=a.updated_at,
     )
 

@@ -127,7 +127,7 @@ def match_all(db: Session, user_id: uuid.UUID, *, limit: int = 50, min_score: fl
         summaries.append(
             MatchSummary(
                 internship_id=it.id, title=it.title, company=it.company, location=it.location, work_mode=it.work_mode,
-                source=it.source, overall=m.overall, required_matched=len(m.matched_required), required_total=total_req,
+                stipend=it.stipend, duration=it.duration, source=it.source, overall=m.overall, required_matched=len(m.matched_required), required_total=total_req,
                 missing_required=m.missing_required[:4],
             )
         )

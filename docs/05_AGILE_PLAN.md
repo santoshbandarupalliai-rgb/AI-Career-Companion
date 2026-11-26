@@ -72,6 +72,8 @@ Acceptance criteria are the behaviours covered by the automated tests.
 | Interview prep as a mock interview chat with a diagnostic report | Done |
 | Interview Prep Agent: resume-based role recommendation, interview preparation, document Q&A | Done |
 | Profile filled in manually only (no autofill from the resume) | Done |
+| Verification emails delivered through Gmail SMTP | Done |
+| Stipend and duration shown on match cards and tracker cards | Done |
 | Demo "Apply" option on internship cards (records an Applied application) | Done |
 | Verify Mermaid diagrams render | Done |
 | PDF export of tailored resume, CV templates, streaming answers | Descoped (blueprint cut line) |

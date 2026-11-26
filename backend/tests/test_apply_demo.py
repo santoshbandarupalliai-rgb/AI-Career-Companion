@@ -94,3 +94,13 @@ def test_notes_are_length_limited(client, auth, seeded):
     h = auth()
     item = first_internship(client, h)
     assert client.post(APPLY, headers=h, json={"internship_id": item["id"], "notes": "x" * 1001}).status_code == 422
+
+
+def test_stipend_of_the_linked_posting_is_shown(client, auth, seeded):
+    h = auth()
+    item = first_internship(client, h)
+    client.post(APPLY, headers=h, json={"internship_id": item["id"]})
+    listed = client.get("/api/applications", headers=h).json()["items"][0]
+    assert listed["stipend"] == item["stipend"] and listed["stipend"]
+    external = client.post("/api/applications", headers=h, json={"company": "Acme", "role": "Dev"}).json()
+    assert external["stipend"] is None  # nothing is invented for postings without a stated stipend

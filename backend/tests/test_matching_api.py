@@ -269,3 +269,10 @@ def test_plan_ignores_client_supplied_gaps(client, auth, seeded, monkeypatch):
     monkeypatch.setattr(plan_service, "generate_structured", lambda p, s, **k: prompts.append(p) or LearningPlan())
     client.post("/api/skill-gap/plan", headers=h, json={"internship_id": posting["id"], "gaps": ["Kubernetes"]})
     assert prompts and "Kubernetes" not in prompts[0]
+
+
+def test_match_list_includes_stipend_and_duration(client, auth, seeded):
+    h = auth()
+    client.post("/api/skills", headers=h, json={"name": "Python"})
+    items = client.get("/api/matching", headers=h).json()["items"]
+    assert items and all(i["stipend"] and i["duration"] for i in items)  # every sample posting states both

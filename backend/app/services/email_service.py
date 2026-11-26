@@ -16,14 +16,16 @@ log = logging.getLogger(__name__)
 
 
 def smtp_configured() -> bool:
-    return bool(get_settings().smtp_host)
+    """An SMTP host, and a password whenever a login user is set (a login without a password cannot work)."""
+    s = get_settings()
+    return bool(s.smtp_host) and (not s.smtp_user or bool(s.smtp_password))
 
 
 def send_email(to: str, subject: str, text: str, html: str | None = None) -> bool:
     """Send one email. Returns True if it was handed to the SMTP server, False otherwise."""
     s = get_settings()
-    if not s.smtp_host:
-        log.info("SMTP is not configured; email '%s' was not sent. Message body:\n%s", subject, text)
+    if not smtp_configured():
+        log.info("SMTP is not configured (host, user and app password are needed); email '%s' was not sent. Message body:\n%s", subject, text)
         return False
     sender = s.smtp_from or s.smtp_user
     if not sender:
@@ -53,6 +55,7 @@ def send_email(to: str, subject: str, text: str, html: str | None = None) -> boo
     except Exception as exc:  # network, auth, refused recipient...
         detail = str(exc).replace(s.smtp_password, "***") if s.smtp_password else str(exc)
         log.error("sending email failed: %s: %s", type(exc).__name__, detail[:200])
+        log.info("Email '%s' could not be delivered. Message body:\n%s", subject, text)
         return False
 
 

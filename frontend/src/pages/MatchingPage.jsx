@@ -129,7 +129,7 @@ function Breakdown({ id }) {
 
 function MatchCard({ item }) {
   const [open, setOpen] = useState(false);
-  const meta = [item.location, MODE_LABEL[item.work_mode]].filter(Boolean).filter((v, i, a) => a.findIndex((x) => x.toLowerCase() === v.toLowerCase()) === i);
+  const meta = [item.location, MODE_LABEL[item.work_mode], item.stipend, item.duration].filter(Boolean).filter((v, i, a) => a.findIndex((x) => x.toLowerCase() === v.toLowerCase()) === i);
   return (
     <article className="card stack match-card">
       <div className="row-between wrap">

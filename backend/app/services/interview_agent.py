@@ -196,6 +196,8 @@ def build_context(db: Session, user_id: uuid.UUID) -> str:
         matches = matching_service.match_all(db, user_id, limit=MAX_MATCHES)
         rows = [
             f"{i}. {m.title} at {m.company}{' [Sample]' if m.source == 'sample' else ''}: score {m.overall:g}/100, "
+            + (f"stipend {m.stipend}, " if m.stipend else "")
+            +
             f"required skills matched {m.required_matched}/{m.required_total}"
             + (f", missing {', '.join(m.missing_required)}" if m.missing_required else "")
             for i, m in enumerate(matches.items, 1) if m.overall > 0

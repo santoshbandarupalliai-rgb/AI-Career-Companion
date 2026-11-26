@@ -181,10 +181,10 @@ def delete(db: Session, user_id: uuid.UUID, application_id: uuid.UUID) -> None:
     db.commit()
 
 
-def describe(db: Session, apps: list[Application]) -> dict[uuid.UUID, tuple[str | None, str | None]]:
-    """(internship source, resume filename) per application, in two batched queries."""
+def describe(db: Session, apps: list[Application]) -> dict[uuid.UUID, tuple[str | None, str | None, str | None]]:
+    """(internship source, resume name, posting stipend) per application, in two batched queries."""
     i_ids = {a.internship_id for a in apps if a.internship_id}
     r_ids = {a.resume_id for a in apps if a.resume_id}
-    sources = {k: v for k, v in db.execute(select(Internship.id, Internship.source).where(Internship.id.in_(i_ids)))} if i_ids else {}
+    postings = {k: (src, stip) for k, src, stip in db.execute(select(Internship.id, Internship.source, Internship.stipend).where(Internship.id.in_(i_ids)))} if i_ids else {}
     names = {k: (lbl or fn) for k, fn, lbl in db.execute(select(Resume.id, Resume.original_filename, Resume.label).where(Resume.id.in_(r_ids)))} if r_ids else {}
-    return {a.id: (sources.get(a.internship_id), names.get(a.resume_id)) for a in apps}
+    return {a.id: ((postings.get(a.internship_id) or (None, None))[0], names.get(a.resume_id), (postings.get(a.internship_id) or (None, None))[1]) for a in apps}
