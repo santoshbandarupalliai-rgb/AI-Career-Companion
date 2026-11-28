@@ -1,6 +1,6 @@
 # AI Career Companion
 
-An AI-powered career platform for students looking for internships: profile and resume intelligence, internship matching, skill-gap analysis, tailored applications, interview preparation, application tracking, and three separate chat assistants (a **Career Assistant**, an **Interview Prep Agent** and a **Product Assistant**).
+An AI-powered career platform for students looking for internships: profile and resume intelligence, internship matching, skill-gap analysis, tailored applications, interview preparation, application tracking, and separate chat assistants.
 
 Runs entirely on **localhost**: React + Vite frontend, FastAPI backend, and Supabase PostgreSQL (+ pgvector) as the database. No local PostgreSQL install is needed.
 
